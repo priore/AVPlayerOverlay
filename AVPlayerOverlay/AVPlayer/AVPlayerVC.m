@@ -18,9 +18,9 @@
 
 @implementation AVPlayerVC
 
-- (instancetype)init
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
-    if (self = [super init]) {
+    if (self = [super initWithCoder:aDecoder]) {
         
         _overlayStoryboardId = @"AVPlayerOverlayVC";
     }
