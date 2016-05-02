@@ -18,6 +18,16 @@
 
 @implementation AVPlayerVC
 
+- (instancetype)init
+{
+    if (self = [super init]) {
+        
+        _overlayStoryboardId = @"AVPlayerOverlayVC";
+    }
+    
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -31,7 +41,7 @@
                                                       self.videoURL = note.object;
                                                   }];
     
-    _overlayVC = [self.storyboard instantiateViewControllerWithIdentifier:@"AVPlayerOverlayVC"];
+    _overlayVC = [self.storyboard instantiateViewControllerWithIdentifier:_overlayStoryboardId];
     
     [self addChildViewController:_overlayVC];
     [self.view addSubview:_overlayVC.view];

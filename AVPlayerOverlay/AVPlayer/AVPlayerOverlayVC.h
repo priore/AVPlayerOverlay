@@ -20,5 +20,26 @@
 @property (nonatomic, weak) IBOutlet UISlider *volumeSlider;
 
 @property (nonatomic, weak) AVPlayer *player;
+@property (nonatomic, assign) BOOL isFullscreen;
+
+- (void)updateProgressBar;
+
+- (void)autoHidePlayerBar;
+- (void)hidePlayerBar;
+- (void)showPlayerBar;
+
+- (void)didTapGesture:(id)sender;
+- (void)didPlayButtonSelected:(id)sender;
+- (void)didVolumeButtonSelected:(id)sender;
+- (void)didFullscreenButtonSelected:(id)sender;
+
+- (void)didVolumeSliderValueChanged:(id)sender;
+
+- (void)didVideoSliderTouchUp:(id)sender;
+- (void)didVideoSliderTouchDown:(id)sender;
+- (void)videoSliderEnabled:(BOOL)enabled;
+
+- (void)didFullScreenModeFromParentViewController:(UIViewController*)parent;
+- (void)didNormalScreenModeToParentViewController:(UIViewController*)parent;
 
 @end

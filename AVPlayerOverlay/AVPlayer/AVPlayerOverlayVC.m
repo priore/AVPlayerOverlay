@@ -241,18 +241,25 @@
 
 - (void)didFullscreenButtonSelected:(id)sender
 {
+    static BOOL navbar;
+    static BOOL statusbar;
     static CGRect current_frame;
     static UIView *container_view;
+    static UIWindow *mainWindow;
     static UIViewController *original_parent;
     
     UIViewController *parent = self.parentViewController; // AVPlayerViewController
-    UIWindow *mainWindow = [UIApplication sharedApplication].keyWindow;
+    
+    if (mainWindow == nil)
+        mainWindow = [UIApplication sharedApplication].keyWindow;
 
     if (_window == nil)
     {
+        statusbar = [UIApplication sharedApplication].isStatusBarHidden;
         original_parent = parent.parentViewController;
         current_frame = [parent.view convertRect:parent.view.frame toView:mainWindow];
         container_view = parent.view.superview;
+        navbar = parent.navigationController.isNavigationBarHidden;
         
         [parent removeFromParentViewController];
         [parent.view removeFromSuperview];
@@ -267,6 +274,8 @@
         
         _window.rootViewController = parent;
         
+        [self didFullScreenModeFromParentViewController:parent];
+        
         [UIView animateKeyframesWithDuration:0.5
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
@@ -274,8 +283,15 @@
                                       _window.frame = mainWindow.bounds;
                                   } completion:^(BOOL finished) {
                                       _fullscreenButton.transform = CGAffineTransformMakeScale(-1.0, -1.0);
+                                      _isFullscreen = YES;
                                   }];
+        
+        [self.navigationController setNavigationBarHidden:YES animated:YES];
+        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
+        
     } else {
+        
+        [self didNormalScreenModeToParentViewController:parent];
         
         [UIView animateKeyframesWithDuration:0.5
                                        delay:0
@@ -292,10 +308,29 @@
                                       [parent didMoveToParentViewController:self];
                                       
                                       [_window removeFromSuperview], self.window = nil;
+                                      [mainWindow makeKeyAndVisible];
+                                      
+                                      _isFullscreen = NO;
                                   }];
+        
+        [self.navigationController setNavigationBarHidden:navbar animated:YES];
+        [[UIApplication sharedApplication] setStatusBarHidden:statusbar withAnimation:UIStatusBarAnimationSlide];
+        
     }
     
     [self autoHidePlayerBar];
+}
+
+#pragma mark - Overridable Methods
+
+- (void)didFullScreenModeFromParentViewController:(UIViewController*)parent
+{
+    
+}
+
+- (void)didNormalScreenModeToParentViewController:(UIViewController*)parent
+{
+    
 }
 
 #pragma mark - Volume Slider
