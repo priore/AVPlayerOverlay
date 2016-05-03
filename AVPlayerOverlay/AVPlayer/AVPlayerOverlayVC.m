@@ -305,10 +305,14 @@
 
                                       [original_parent addChildViewController:parent];
                                       [container_view addSubview:parent.view];
-                                      [parent didMoveToParentViewController:self];
+                                      [parent didMoveToParentViewController:original_parent];
                                       
                                       [_window removeFromSuperview], self.window = nil;
                                       [mainWindow makeKeyAndVisible];
+                                      
+                                      container_view = nil;
+                                      original_parent = nil;
+                                      mainWindow = nil;
                                       
                                       _isFullscreen = NO;
                                   }];
