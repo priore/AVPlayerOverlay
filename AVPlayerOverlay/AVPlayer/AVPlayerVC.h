@@ -12,6 +12,8 @@ IB_DESIGNABLE
 @interface AVPlayerVC : AVPlayerViewController
 
 @property (nonatomic, strong) NSURL *videoURL;
+
+@property (nonatomic, assign) IBInspectable BOOL videoBackground;
 @property (nonatomic, strong) IBInspectable NSString *overlayStoryboardId;
 
 @end
