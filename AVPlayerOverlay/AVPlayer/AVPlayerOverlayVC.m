@@ -6,8 +6,10 @@
 //
 #define PLAYERBAR_AUTOHIDE 5.0
 
-#import <AVFoundation/AVFoundation.h>
 #import "AVPlayerOverlayVC.h"
+
+@import AVFoundation;
+@import MediaPlayer;
 
 @interface AVPlayerOverlayVC ()
 {
@@ -15,7 +17,17 @@
     BOOL isVideoSliderMoving;
 }
 
+@property (nonatomic, weak) UIView *containerView;
+@property (nonatomic, weak) UIWindow *mainWindow;
+@property (nonatomic, weak) UIViewController *mainParent;
+@property (nonatomic, weak) UISlider *mpSlider;
+
+@property (nonatomic, assign) BOOL statusBarHidden;
+@property (nonatomic, assign) BOOL navbarHidden;
+@property (nonatomic, assign) CGRect currentFrame;
+
 @property (nonatomic, strong) UIWindow *window;
+@property (nonatomic, strong) MPVolumeView *volume;
 
 @end
 
@@ -28,8 +40,18 @@
     self.view.clipsToBounds = YES;
     self.view.backgroundColor = [UIColor clearColor];
     
+    // system volume
+    self.volume = [[MPVolumeView alloc] initWithFrame:CGRectZero];
+    for (id view in _volume.subviews) {
+        if ([view isKindOfClass:[UISlider class]]) {
+            _mpSlider = view;
+            break;
+        }
+    }
+    
     _volumeSlider.hidden = YES;
     _volumeSlider.transform = CGAffineTransformMakeRotation(-M_PI_2);
+    _volumeSlider.value = [AVAudioSession sharedInstance].outputVolume;
     
     _playBigButton.layer.borderWidth = 1.0;
     _playBigButton.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -54,6 +76,14 @@
     [self autoHidePlayerBar];
 }
 
+- (void)dealloc
+{
+    _volume = nil;
+
+    [_window removeFromSuperview], _window = nil;
+    [_mainWindow makeKeyAndVisible];
+}
+
 - (void)setPlayer:(AVPlayer *)player
 {
     @synchronized (self) {
@@ -69,7 +99,7 @@
 
         } else {
             
-            typeof(self) wself = self;
+            __weak typeof(self) wself = self;
             timeObserver =  [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0 / 60.0, NSEC_PER_SEC)
                                                                       queue:NULL
                                                                  usingBlock:^(CMTime time){
@@ -141,7 +171,7 @@
 {
     CGFloat height = _playerBarView.frame.size.height;
 
-    typeof(self) wself = self;
+    __weak typeof(self) wself = self;
     [self setConstraintValue:height
                 forAttribute:NSLayoutAttributeBottom
                     duration:1.0 animations:^{
@@ -156,7 +186,7 @@
 {
     _playerBarView.hidden = NO;
 
-    typeof(self) wself = self;
+    __weak typeof(self) wself = self;
     [self setConstraintValue:0
                 forAttribute:NSLayoutAttributeBottom
                     duration:0.5
@@ -219,6 +249,7 @@
     {
         _volumeSlider.alpha = 0.0;
         _volumeSlider.hidden = NO;
+        _volumeSlider.value = [AVAudioSession sharedInstance].outputVolume;
         [UIView animateWithDuration:0.25
                          animations:^{
                              _volumeSlider.alpha = 1.0;
@@ -241,31 +272,24 @@
 
 - (void)didFullscreenButtonSelected:(id)sender
 {
-    static BOOL navbar;
-    static BOOL statusbar;
-    static CGRect current_frame;
-    static UIView *container_view;
-    static UIWindow *mainWindow;
-    static UIViewController *original_parent;
-    
     UIViewController *parent = self.parentViewController; // AVPlayerViewController
     
-    if (mainWindow == nil)
-        mainWindow = [UIApplication sharedApplication].keyWindow;
+    if (_mainWindow == nil)
+        self.mainWindow = [UIApplication sharedApplication].keyWindow;
 
     if (_window == nil)
     {
-        statusbar = [UIApplication sharedApplication].isStatusBarHidden;
-        original_parent = parent.parentViewController;
-        current_frame = [parent.view convertRect:parent.view.frame toView:mainWindow];
-        container_view = parent.view.superview;
-        navbar = parent.navigationController.isNavigationBarHidden;
+        self.statusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
+        self.mainParent = parent.parentViewController;
+        self.currentFrame = [parent.view convertRect:parent.view.frame toView:_mainWindow];
+        self.containerView = parent.view.superview;
+        self.navbarHidden = parent.navigationController.isNavigationBarHidden;
         
         [parent removeFromParentViewController];
         [parent.view removeFromSuperview];
         [parent willMoveToParentViewController:nil];
         
-        self.window = [[UIWindow alloc] initWithFrame:current_frame];
+        self.window = [[UIWindow alloc] initWithFrame:_currentFrame];
         _window.backgroundColor = [UIColor blackColor];
         _window.windowLevel = UIWindowLevelNormal;
         
@@ -280,7 +304,7 @@
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
                                   animations:^{
-                                      _window.frame = mainWindow.bounds;
+                                      _window.frame = _mainWindow.bounds;
                                   } completion:^(BOOL finished) {
                                       _fullscreenButton.transform = CGAffineTransformMakeScale(-1.0, -1.0);
                                       _isFullscreen = YES;
@@ -297,28 +321,24 @@
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
                                   animations:^{
-                                      _window.frame = current_frame;
+                                      _window.frame = _currentFrame;
                                   } completion:^(BOOL finished) {
                                       
                                       _window.rootViewController = nil;
                                       _fullscreenButton.transform = CGAffineTransformIdentity;
 
-                                      [original_parent addChildViewController:parent];
-                                      [container_view addSubview:parent.view];
-                                      [parent didMoveToParentViewController:original_parent];
+                                      [_mainParent addChildViewController:parent];
+                                      [_containerView addSubview:parent.view];
+                                      [parent didMoveToParentViewController:_mainParent];
                                       
-                                      [_window removeFromSuperview], self.window = nil;
-                                      [mainWindow makeKeyAndVisible];
-                                      
-                                      container_view = nil;
-                                      original_parent = nil;
-                                      mainWindow = nil;
+                                      [_window removeFromSuperview], _window = nil;
+                                      [_mainWindow makeKeyAndVisible];
                                       
                                       _isFullscreen = NO;
                                   }];
         
-        [self.navigationController setNavigationBarHidden:navbar animated:YES];
-        [[UIApplication sharedApplication] setStatusBarHidden:statusbar withAnimation:UIStatusBarAnimationSlide];
+        [self.navigationController setNavigationBarHidden:_navbarHidden animated:YES];
+        [[UIApplication sharedApplication] setStatusBarHidden:_statusBarHidden withAnimation:UIStatusBarAnimationSlide];
         
     }
     
@@ -341,7 +361,9 @@
 
 - (void)didVolumeSliderValueChanged:(id)sender
 {
-    _player.volume = ((UISlider*)sender).value;
+    _mpSlider.value = ((UISlider*)sender).value;
+    [_mpSlider sendActionsForControlEvents:UIControlEventTouchUpInside];
+    
     [self autoHidePlayerBar];
 }
 
