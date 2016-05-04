@@ -6,11 +6,11 @@ AVPlayer with custom controls and full screen features.
 
 * Put a Container View on your ViewController.
 
-![image](https://github.com/priore/AVPlayerOverlay/images/step1.jpg)
+![image](https://github.com/priore/AVPlayerOverlay/blob/master/images/step1.jpg)
 
 * Remove the ViewController that created automatically.
 
-![image](https://github.com/priore/AVPlayerOverlay/images/step2.jpg)
+![image](https://github.com/priore/AVPlayerOverlay/blob/master/images/step2.jpg)
 
 * Add a AVPlayerViewController.
 
@@ -18,7 +18,7 @@ AVPlayer with custom controls and full screen features.
 
 * Sets the AVPlayerViewController class to the AVPlayerVC custom class.
 
-![image](https://github.com/priore/AVPlayerOverlay/images/step3.jpg)
+![image](https://github.com/priore/AVPlayerOverlay/blob/master/images/step3.jpg)
 
 * Add a new ViewController.
 
@@ -26,7 +26,7 @@ AVPlayer with custom controls and full screen features.
 
 * Set the storyboard identity to AVPlayerOverlayVC
 
-![image](https://github.com/priore/AVPlayerOverlay/images/step4.jpg)
+![image](https://github.com/priore/AVPlayerOverlay/blob/master/images/step4.jpg)
 
 * Put a View and Buttons and Slider inside this views for customize your controllers.
 
@@ -34,12 +34,12 @@ AVPlayer with custom controls and full screen features.
 
 * Connect all controls interface of the viewcontroller.
 
-![image](https://github.com/priore/AVPlayerOverlay/images/step5.jpg)
+![image](https://github.com/priore/AVPlayerOverlay/blob/master/images/step5.jpg)
 
 * Set the constraints of the controls, and center the volume slider to the volume button.<br> 
 _note: the volume slider is automatically rotated._
 
-![image](https://github.com/priore/AVPlayerOverlay/images/step6.jpg)
+![image](https://github.com/priore/AVPlayerOverlay/blob/master/images/step6.jpg)
 
 * In your ViewController where is the Container View, put the code below.
 
