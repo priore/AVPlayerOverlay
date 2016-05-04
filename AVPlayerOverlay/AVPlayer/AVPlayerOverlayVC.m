@@ -111,10 +111,7 @@
         
         _playButton.selected = NO;
         _playBigButton.hidden = NO;
-        [UIView animateWithDuration:0.25
-                         animations:^{
-                             _playBigButton.alpha = 1.0;
-                         }];
+        _playBigButton.selected = NO;
 
         [self showPlayerBar];
         [self autoHidePlayerBar];
@@ -176,21 +173,26 @@
                 forAttribute:NSLayoutAttributeBottom
                     duration:1.0 animations:^{
                         wself.volumeSlider.alpha = 0.0;
+                        wself.playBigButton.alpha = 0.0;
                     } completion:^(BOOL finished) {
                         wself.volumeSlider.hidden = YES;
                         wself.playerBarView.hidden = YES;
+                        wself.playBigButton.hidden = YES;
                     }];
 }
 
 - (void)showPlayerBar
 {
     _playerBarView.hidden = NO;
+    _playBigButton.hidden = NO;
 
     __weak typeof(self) wself = self;
     [self setConstraintValue:0
                 forAttribute:NSLayoutAttributeBottom
                     duration:0.5
-                  animations:nil
+                  animations:^{
+                      wself.playBigButton.alpha = 1.0;
+                  }
                   completion:^(BOOL finished) {
                       [wself autoHidePlayerBar];
                   }];
@@ -217,27 +219,14 @@
         [_player play];
         
         _playButton.selected = YES;
-        
-        _playBigButton.alpha = 1.0;
-        _playBigButton.hidden = NO;
-        [UIView animateWithDuration:0.25
-                         animations:^{
-                             _playBigButton.alpha = 0.0;
-                         } completion:^(BOOL finished) {
-                             _playBigButton.hidden = YES;
-                         }];
+        _playBigButton.selected = YES;
         
     } else {
         [_player pause];
         
         _playButton.selected = NO;
+        _playBigButton.selected = NO;
         
-        _playBigButton.alpha = 0.0;
-        _playBigButton.hidden = NO;
-        [UIView animateWithDuration:0.25
-                         animations:^{
-                             _playBigButton.alpha = 1.0;
-                         }];
     }
     
     [self autoHidePlayerBar];
