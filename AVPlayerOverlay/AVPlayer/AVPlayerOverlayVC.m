@@ -171,14 +171,15 @@
     __weak typeof(self) wself = self;
     [self setConstraintValue:height
                 forAttribute:NSLayoutAttributeBottom
-                    duration:1.0 animations:^{
-                        wself.volumeSlider.alpha = 0.0;
-                        wself.playBigButton.alpha = 0.0;
-                    } completion:^(BOOL finished) {
-                        wself.volumeSlider.hidden = YES;
-                        wself.playerBarView.hidden = YES;
-                        wself.playBigButton.hidden = YES;
-                    }];
+                    duration:1.0
+                  animations:^{
+                      wself.volumeSlider.alpha = 0.0;
+                      wself.playBigButton.alpha = 0.0;
+                  } completion:^(BOOL finished) {
+                      wself.volumeSlider.hidden = YES;
+                      wself.playerBarView.hidden = YES;
+                      wself.playBigButton.hidden = YES;
+                  }];
 }
 
 - (void)showPlayerBar

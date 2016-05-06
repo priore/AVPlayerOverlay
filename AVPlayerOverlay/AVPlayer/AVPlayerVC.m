@@ -8,13 +8,6 @@
 #import <CoreMedia/CoreMedia.h>
 #import <AVFoundation/AVFoundation.h>
 #import "AVPlayerVC.h"
-#import "AVPlayerOverlayVC.h"
-
-@interface AVPlayerVC()
-
-@property (nonatomic, strong) AVPlayerOverlayVC *overlayVC;
-
-@end
 
 @implementation AVPlayerVC
 
@@ -137,6 +130,11 @@
                 break;
         }
     }
+}
+
+- (void)dealloc
+{
+    _overlayVC = nil;
 }
 
 #pragma mark - Video (only audio) on background
