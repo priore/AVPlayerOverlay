@@ -382,16 +382,18 @@
 
 - (void)videoSliderEnabled:(BOOL)enabled
 {
-    if (enabled && !_videoSlider.isUserInteractionEnabled) {
-        _videoSlider.userInteractionEnabled = YES;
-        [UIView animateWithDuration:0.25 animations:^{
-            _videoSlider.alpha = 1.0;
-        }];
-    } else if (!enabled && _videoSlider.isUserInteractionEnabled) {
-        _videoSlider.userInteractionEnabled = NO;
-        [UIView animateWithDuration:0.25 animations:^{
-            _videoSlider.alpha = 0.3;
-        }];
+    if (!isVideoSliderMoving) {
+        if (enabled && !_videoSlider.isUserInteractionEnabled) {
+            _videoSlider.userInteractionEnabled = YES;
+            [UIView animateWithDuration:0.25 animations:^{
+                _videoSlider.alpha = 1.0;
+            }];
+        } else if (!enabled && _videoSlider.isUserInteractionEnabled) {
+            _videoSlider.userInteractionEnabled = NO;
+            [UIView animateWithDuration:0.25 animations:^{
+                _videoSlider.alpha = 0.3;
+            }];
+        }
     }
 }
 

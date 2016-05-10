@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'AVPlayerOverlay'
-  s.version                 = '1.2.4'
+  s.version                 = '1.2.5'
   s.summary                 = 'AVPlayer with custom controls and full screen features.'
   s.license                 = 'MIT'
   s.ios.platform            = '7.1'
