@@ -37,6 +37,9 @@
 		9F16B0151CD40E340082CC15 /* TableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewController.h; sourceTree = "<group>"; };
 		9F16B0161CD40E340082CC15 /* TableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewController.m; sourceTree = "<group>"; };
 		9F16B0181CD40EC10082CC15 /* Channels.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Channels.plist; sourceTree = "<group>"; };
+		9F72195E1CE60BDD00948B8B /* AVPlayerOverlay.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = AVPlayerOverlay.podspec; path = ../AVPlayerOverlay.podspec; sourceTree = "<group>"; };
+		9F72195F1CE60BDD00948B8B /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		9F7219601CE60BDD00948B8B /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,13 +85,15 @@
 				9F16AFFF1CD3E3980082CC15 /* Info.plist */,
 				9F16AFEE1CD3E3980082CC15 /* Supporting Files */,
 			);
-			name = AVPlayerOverlay;
 			path = AVPlayerOverlay;
 			sourceTree = "<group>";
 		};
 		9F16AFEE1CD3E3980082CC15 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				9F72195E1CE60BDD00948B8B /* AVPlayerOverlay.podspec */,
+				9F72195F1CE60BDD00948B8B /* LICENSE */,
+				9F7219601CE60BDD00948B8B /* README.md */,
 				9F16B0181CD40EC10082CC15 /* Channels.plist */,
 				9F16AFEF1CD3E3980082CC15 /* main.m */,
 			);

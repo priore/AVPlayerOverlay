@@ -12,10 +12,6 @@
 @import MediaPlayer;
 
 @interface AVPlayerOverlayVC ()
-{
-    id timeObserver;
-    BOOL isVideoSliderMoving;
-}
 
 @property (nonatomic, weak) UIView *containerView;
 @property (nonatomic, weak) UIWindow *mainWindow;
@@ -28,6 +24,9 @@
 
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) MPVolumeView *volume;
+
+@property (nonatomic, strong) id timeObserver;
+@property (nonatomic, assign) BOOL isVideoSliderMoving;
 
 @end
 
@@ -80,6 +79,10 @@
 {
     _volume = nil;
 
+    if (_timeObserver)
+        [_player removeTimeObserver:_timeObserver];
+    _timeObserver = nil;
+    
     [_window removeFromSuperview], _window = nil;
     [_mainWindow makeKeyAndVisible];
 }
@@ -91,8 +94,9 @@
 
         if (_player == nil) {
             
-            if (timeObserver)
-                [_player removeTimeObserver:timeObserver];
+            if (_timeObserver)
+                [_player removeTimeObserver:_timeObserver];
+            _timeObserver = nil;
             
             _volumeSlider.value = 1.0;
             _videoSlider.value = 0.0;
@@ -100,11 +104,11 @@
         } else {
             
             __weak typeof(self) wself = self;
-            timeObserver =  [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0 / 60.0, NSEC_PER_SEC)
-                                                                      queue:NULL
-                                                                 usingBlock:^(CMTime time){
-                                                                     [wself updateProgressBar];
-                                                                 }];
+            self.timeObserver =  [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0 / 60.0, NSEC_PER_SEC)
+                                                                           queue:NULL
+                                                                      usingBlock:^(CMTime time){
+                                                                          [wself updateProgressBar];
+                                                                      }];
             _videoSlider.value = 0;
             _volumeSlider.value = _player.volume;
         }
@@ -122,7 +126,7 @@
 - (void)updateProgressBar
 {
     Float64 duration = CMTimeGetSeconds(_player.currentItem.duration);
-    if (!isVideoSliderMoving && !isnan(duration)) {
+    if (!_isVideoSliderMoving && !isnan(duration)) {
         _videoSlider.maximumValue = duration;
         _videoSlider.value = CMTimeGetSeconds(_player.currentTime);
         
@@ -370,19 +374,19 @@
             [_player seekToTime:seektime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
     }
     
-    isVideoSliderMoving = NO;
+    _isVideoSliderMoving = NO;
     [self autoHidePlayerBar];
 }
 
 - (void)didVideoSliderTouchDown:(id)sender
 {
-    isVideoSliderMoving = YES;
+    _isVideoSliderMoving = YES;
     [self autoHidePlayerBar];
 }
 
 - (void)videoSliderEnabled:(BOOL)enabled
 {
-    if (!isVideoSliderMoving) {
+    if (!_isVideoSliderMoving) {
         if (enabled && !_videoSlider.isUserInteractionEnabled) {
             _videoSlider.userInteractionEnabled = YES;
             [UIView animateWithDuration:0.25 animations:^{
