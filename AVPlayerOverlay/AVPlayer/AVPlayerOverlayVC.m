@@ -219,19 +219,22 @@
 
 - (void)didPlayButtonSelected:(id)sender
 {
-    if (_player.rate == 0)
+    if (_player.currentItem != nil)
     {
-        [_player play];
-        
-        _playButton.selected = YES;
-        _playBigButton.selected = YES;
-        
-    } else {
-        [_player pause];
-        
-        _playButton.selected = NO;
-        _playBigButton.selected = NO;
-        
+        if (_player.rate == 0)
+        {
+            [_player play];
+            
+            _playButton.selected = YES;
+            _playBigButton.selected = YES;
+            
+        } else {
+            [_player pause];
+            
+            _playButton.selected = NO;
+            _playBigButton.selected = NO;
+            
+        }
     }
     
     [self autoHidePlayerBar];
@@ -343,12 +346,12 @@
 
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent
 {
-    
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCFullScreenNotification object:self];
 }
 
 - (void)didNormalScreenModeToParentViewController:(UIViewController*)parent
 {
-    
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCNormalScreenNotification object:self];
 }
 
 #pragma mark - Volume Slider

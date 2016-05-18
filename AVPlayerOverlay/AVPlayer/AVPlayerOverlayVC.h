@@ -4,6 +4,8 @@
 //  Created by Danilo Priore on 28/04/16.
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
+#define AVPlayerOverlayVCFullScreenNotification     @"AVPlayerOverlayVCFullScreen"
+#define AVPlayerOverlayVCNormalScreenNotification   @"AVPlayerOverlayVCNormalScreen"
 
 #import <UIKit/UIKit.h>
 
