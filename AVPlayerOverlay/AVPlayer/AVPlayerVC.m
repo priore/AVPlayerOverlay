@@ -33,30 +33,22 @@
         [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
         [[AVAudioSession sharedInstance] setActive:YES error:nil];
         
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification
-                                                          object:nil
-                                                           queue:NULL
-                                                      usingBlock:^(NSNotification *note) {
-                                                          [self playInBackground:YES];
-                                                      }];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillResignActiveNotification:)
+                                                     name:UIApplicationWillResignActiveNotification
+                                                   object:nil];
 
-        [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillEnterForegroundNotification
-                                                          object:nil
-                                                           queue:NULL
-                                                      usingBlock:^(NSNotification *note) {
-                                                          [self playInBackground:NO];
-                                                      }];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationWillEnterForegroundNotification:)
+                                                     name:UIApplicationWillEnterForegroundNotification
+                                                   object:nil];
     }
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:AVPlayerVCSetVideoURLNotification
-                                                      object:nil
-                                                       queue:NULL
-                                                  usingBlock:^(NSNotification *note) {
-                                                      self.videoURL = note.object;
-                                                  }];
-    
-    
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(avPlayerVCSetVideoURLNotification:)
+                                                 name:AVPlayerVCSetVideoURLNotification
+                                               object:nil];
+
     _overlayVC = [self.storyboard instantiateViewControllerWithIdentifier:_overlayStoryboardId];
     
     [self addChildViewController:_overlayVC];
@@ -135,6 +127,11 @@
 - (void)dealloc
 {
     _overlayVC = nil;
+    
+    [self.player pause], self.player = nil;
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Video (only audio) on background
@@ -159,6 +156,23 @@
     
     if (isPlay)
         [self.player performSelector:@selector(play) withObject:nil afterDelay:1.0];
+}
+
+#pragma mark - Notifications
+
+- (void)applicationWillResignActiveNotification:(NSNotification*)note
+{
+    [self playInBackground:YES];
+}
+
+- (void)applicationWillEnterForegroundNotification:(NSNotification*)note
+{
+    [self playInBackground:NO];
+}
+
+- (void)avPlayerVCSetVideoURLNotification:(NSNotification*)note
+{
+    self.videoURL = note.object;
 }
 
 @end

@@ -77,14 +77,18 @@
 
 - (void)dealloc
 {
-    _volume = nil;
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
 
     if (_timeObserver)
         [_player removeTimeObserver:_timeObserver];
     _timeObserver = nil;
-    
+
+    _volume = nil;
+    _player = nil;
+
     [_window removeFromSuperview], _window = nil;
     [_mainWindow makeKeyAndVisible];
+    
 }
 
 - (void)setPlayer:(AVPlayer *)player
@@ -104,11 +108,11 @@
         } else {
             
             __weak typeof(self) wself = self;
-            self.timeObserver =  [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0 / 60.0, NSEC_PER_SEC)
-                                                                           queue:NULL
-                                                                      usingBlock:^(CMTime time){
-                                                                          [wself updateProgressBar];
-                                                                      }];
+            self.timeObserver =  [_player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0 / 60.0, NSEC_PER_SEC)
+                                                                       queue:NULL
+                                                                  usingBlock:^(CMTime time){
+                                                                      [wself updateProgressBar];
+                                                                  }];
             _videoSlider.value = 0;
             _volumeSlider.value = _player.volume;
         }
