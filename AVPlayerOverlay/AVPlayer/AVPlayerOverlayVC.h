@@ -41,7 +41,9 @@
 - (void)didVideoSliderTouchDown:(id)sender;
 - (void)videoSliderEnabled:(BOOL)enabled;
 
+- (void)willFullScreenModeFromParentViewController:(UIViewController*)parent;
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent;
+- (void)willNormalScreenModeToParentViewController:(UIViewController*)parent;
 - (void)didNormalScreenModeToParentViewController:(UIViewController*)parent;
 
 @end

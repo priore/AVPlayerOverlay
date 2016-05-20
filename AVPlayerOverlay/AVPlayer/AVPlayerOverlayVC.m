@@ -280,6 +280,8 @@
 
     if (_window == nil)
     {
+        [self willFullScreenModeFromParentViewController:parent];
+        
         self.statusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
         self.mainParent = parent.parentViewController;
         self.currentFrame = [parent.view convertRect:parent.view.frame toView:_mainWindow];
@@ -299,8 +301,6 @@
         
         _window.rootViewController = parent;
         
-        [self didFullScreenModeFromParentViewController:parent];
-        
         [UIView animateKeyframesWithDuration:0.5
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
@@ -309,6 +309,8 @@
                                   } completion:^(BOOL finished) {
                                       _fullscreenButton.transform = CGAffineTransformMakeScale(-1.0, -1.0);
                                       _isFullscreen = YES;
+                                      
+                                      [self didFullScreenModeFromParentViewController:parent];
                                   }];
         
         [self.navigationController setNavigationBarHidden:YES animated:YES];
@@ -316,7 +318,7 @@
         
     } else {
         
-        [self didNormalScreenModeToParentViewController:parent];
+        [self willNormalScreenModeToParentViewController:parent];
         
         [UIView animateKeyframesWithDuration:0.5
                                        delay:0
@@ -336,6 +338,8 @@
                                       [_mainWindow makeKeyAndVisible];
                                       
                                       _isFullscreen = NO;
+                                      
+                                      [self didNormalScreenModeToParentViewController:parent];
                                   }];
         
         [self.navigationController setNavigationBarHidden:_navbarHidden animated:YES];
@@ -348,9 +352,19 @@
 
 #pragma mark - Overridable Methods
 
+- (void)willFullScreenModeFromParentViewController:(UIViewController*)parent
+{
+
+}
+
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCFullScreenNotification object:self];
+}
+
+- (void)willNormalScreenModeToParentViewController:(UIViewController*)parent
+{
+
 }
 
 - (void)didNormalScreenModeToParentViewController:(UIViewController*)parent
