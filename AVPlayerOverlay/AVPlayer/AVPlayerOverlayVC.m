@@ -18,8 +18,6 @@
 @property (nonatomic, weak) UIViewController *mainParent;
 @property (nonatomic, weak) UISlider *mpSlider;
 
-@property (nonatomic, assign) BOOL statusBarHidden;
-@property (nonatomic, assign) BOOL navbarHidden;
 @property (nonatomic, assign) CGRect currentFrame;
 
 @property (nonatomic, strong) UIWindow *window;
@@ -280,13 +278,10 @@
 
     if (_window == nil)
     {
-        [self willFullScreenModeFromParentViewController:parent];
         
-        self.statusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
         self.mainParent = parent.parentViewController;
         self.currentFrame = [parent.view convertRect:parent.view.frame toView:_mainWindow];
         self.containerView = parent.view.superview;
-        self.navbarHidden = parent.navigationController.isNavigationBarHidden;
         
         [parent removeFromParentViewController];
         [parent.view removeFromSuperview];
@@ -296,16 +291,17 @@
         _window.backgroundColor = [UIColor blackColor];
         _window.windowLevel = UIWindowLevelNormal;
         
-        [_window.layer addSublayer:parent.view.layer];
+        //[_window.layer addSublayer:parent.view.layer];
         [_window makeKeyAndVisible];
         
         _window.rootViewController = parent;
         
+        [self willFullScreenModeFromParentViewController:parent];
         [UIView animateKeyframesWithDuration:0.5
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
                                   animations:^{
-                                      _window.frame = _mainWindow.bounds;
+                                      _window.frame = _mainWindow.frame;
                                   } completion:^(BOOL finished) {
                                       _fullscreenButton.transform = CGAffineTransformMakeScale(-1.0, -1.0);
                                       _isFullscreen = YES;
@@ -313,13 +309,11 @@
                                       [self didFullScreenModeFromParentViewController:parent];
                                   }];
         
-        [self.navigationController setNavigationBarHidden:YES animated:YES];
-        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
-        
     } else {
         
         [self willNormalScreenModeToParentViewController:parent];
         
+        _window.frame = _mainWindow.frame;
         [UIView animateKeyframesWithDuration:0.5
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
@@ -327,23 +321,21 @@
                                       _window.frame = _currentFrame;
                                   } completion:^(BOOL finished) {
                                       
+                                      [parent.view removeFromSuperview];
                                       _window.rootViewController = nil;
-                                      _fullscreenButton.transform = CGAffineTransformIdentity;
-
+                                      
                                       [_mainParent addChildViewController:parent];
                                       [_containerView addSubview:parent.view];
                                       [parent didMoveToParentViewController:_mainParent];
                                       
-                                      [_window removeFromSuperview], _window = nil;
                                       [_mainWindow makeKeyAndVisible];
                                       
+                                      _fullscreenButton.transform = CGAffineTransformIdentity;
                                       _isFullscreen = NO;
+                                      _window = nil;
                                       
                                       [self didNormalScreenModeToParentViewController:parent];
                                   }];
-        
-        [self.navigationController setNavigationBarHidden:_navbarHidden animated:YES];
-        [[UIApplication sharedApplication] setStatusBarHidden:_statusBarHidden withAnimation:UIStatusBarAnimationSlide];
         
     }
     
