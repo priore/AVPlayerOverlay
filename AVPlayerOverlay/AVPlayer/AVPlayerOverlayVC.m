@@ -4,8 +4,6 @@
 //  Created by Danilo Priore on 28/04/16.
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
-#define PLAYERBAR_AUTOHIDE 5.0
-
 #import "AVPlayerOverlayVC.h"
 
 @import AVFoundation;
@@ -26,9 +24,24 @@
 @property (nonatomic, strong) id timeObserver;
 @property (nonatomic, assign) BOOL isVideoSliderMoving;
 
+@property (nonatomic, assign) UIDeviceOrientation currentOrientation;
+
 @end
 
 @implementation AVPlayerOverlayVC
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder]) {
+        
+        _isFullscreen = NO;
+        _isVideoSliderMoving = NO;
+        _playBarAutoideInterval = 5.0;
+        _autorotationMode = AVPlayerFullscreenAutorotationDefaultMode;
+    }
+    
+    return self;
+}
 
 - (void)viewDidLoad
 {
@@ -69,6 +82,10 @@
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapGesture:)];
     [self.view addGestureRecognizer:tap];
     
+    // device rotation
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    
     [self.view layoutIfNeeded];
     [self autoHidePlayerBar];
 }
@@ -87,6 +104,7 @@
     [_window removeFromSuperview], _window = nil;
     [_mainWindow makeKeyAndVisible];
     
+    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 }
 
 - (void)setPlayer:(AVPlayer *)player
@@ -166,8 +184,10 @@
 
 - (void)autoHidePlayerBar
 {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hidePlayerBar) object:nil];
-    [self performSelector:@selector(hidePlayerBar) withObject:nil afterDelay:PLAYERBAR_AUTOHIDE];
+    if (_playBarAutoideInterval > 0) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hidePlayerBar) object:nil];
+        [self performSelector:@selector(hidePlayerBar) withObject:nil afterDelay:_playBarAutoideInterval];
+    }
 }
 
 - (void)hidePlayerBar
@@ -278,7 +298,6 @@
 
     if (_window == nil)
     {
-        
         self.mainParent = parent.parentViewController;
         self.currentFrame = [parent.view convertRect:parent.view.frame toView:_mainWindow];
         self.containerView = parent.view.superview;
@@ -346,21 +365,38 @@
 
 - (void)willFullScreenModeFromParentViewController:(UIViewController*)parent
 {
-
+    // NOP
 }
 
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent
 {
+    if (_autorotationMode == AVPlayerFullscreenAutorotationLandscapeMode)
+    {
+        UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+        // force fullscreen for landscape device rotation
+        [self forceDeviceOrientation:UIInterfaceOrientationUnknown];
+        if (orientation == UIDeviceOrientationLandscapeRight) {
+            [self forceDeviceOrientation:UIInterfaceOrientationLandscapeLeft];
+        } else {
+            [self forceDeviceOrientation:UIInterfaceOrientationUnknown];
+            [self forceDeviceOrientation:UIInterfaceOrientationLandscapeRight];
+        }
+    }
+
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCFullScreenNotification object:self];
 }
 
 - (void)willNormalScreenModeToParentViewController:(UIViewController*)parent
 {
-
+        if (_autorotationMode == AVPlayerFullscreenAutorotationLandscapeMode)
+            [self forceDeviceOrientation:UIInterfaceOrientationPortrait];
 }
 
 - (void)didNormalScreenModeToParentViewController:(UIViewController*)parent
 {
+    if (_autorotationMode == AVPlayerFullscreenAutorotationLandscapeMode)
+        [self forceDeviceOrientation:UIInterfaceOrientationPortrait];
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCNormalScreenNotification object:self];
 }
 
@@ -413,5 +449,36 @@
         }
     }
 }
+
+#pragma mark - Device rotation
+
+- (void)forceDeviceOrientation:(UIInterfaceOrientation)orientation
+{
+    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
+    [[UIDevice currentDevice] setValue:@(orientation) forKey:@"orientation"];
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+}
+
+- (void)deviceOrientationDidChange:(NSNotification *)notification
+{
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    if ((orientation) == UIDeviceOrientationFaceUp || (orientation) == UIDeviceOrientationFaceDown || (orientation) == UIDeviceOrientationUnknown || _currentOrientation == orientation) {
+        return;
+    }
+    
+    _currentOrientation = orientation;
+    
+    [[NSOperationQueue currentQueue] addOperationWithBlock:^{
+        if (_autorotationMode == AVPlayerFullscreenAutorotationLandscapeMode) {
+            // force fullscreen for landscape device rotation
+            if (UIDeviceOrientationIsLandscape(orientation) && !_isFullscreen) {
+                [self didFullscreenButtonSelected:nil];
+            } else if (UIDeviceOrientationIsPortrait(orientation) && _isFullscreen) {
+                [self didFullscreenButtonSelected:nil];
+            }
+        }
+    }];
+}
+
 
 @end
