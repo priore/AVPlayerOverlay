@@ -309,18 +309,17 @@
         self.window = [[UIWindow alloc] initWithFrame:_currentFrame];
         _window.backgroundColor = [UIColor blackColor];
         _window.windowLevel = UIWindowLevelNormal;
-        
-        //[_window.layer addSublayer:parent.view.layer];
         [_window makeKeyAndVisible];
         
         _window.rootViewController = parent;
+        parent.view.frame = _window.bounds;
         
         [self willFullScreenModeFromParentViewController:parent];
         [UIView animateKeyframesWithDuration:0.5
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
                                   animations:^{
-                                      _window.frame = _mainWindow.frame;
+                                      _window.frame = _mainWindow.bounds;
                                   } completion:^(BOOL finished) {
                                       _fullscreenButton.transform = CGAffineTransformMakeScale(-1.0, -1.0);
                                       _isFullscreen = YES;
@@ -332,7 +331,7 @@
         
         [self willNormalScreenModeToParentViewController:parent];
         
-        _window.frame = _mainWindow.frame;
+        _window.frame = _mainWindow.bounds;
         [UIView animateKeyframesWithDuration:0.5
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
@@ -345,6 +344,7 @@
                                       
                                       [_mainParent addChildViewController:parent];
                                       [_containerView addSubview:parent.view];
+                                      parent.view.frame = _containerView.bounds;
                                       [parent didMoveToParentViewController:_mainParent];
                                       
                                       [_mainWindow makeKeyAndVisible];
