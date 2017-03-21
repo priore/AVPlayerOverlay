@@ -3,7 +3,9 @@ Pod::Spec.new do |s|
   s.version                 = '1.6'
   s.summary                 = 'AVPlayer with custom controls and full screen features.'
   s.license                 = 'MIT'
-  s.ios.platform            = '7.1'
+  s.authors 				= { 'Danilo Priore' => 'support@prioregroup.com' }
+  s.homepage 				= 'https://github.com/priore/AVPlayerOverlay'
+  s.social_media_url 		= 'https://twitter.com/danilopriore'
   s.ios.deployment_target   = '7.1'
   s.authors                 = { 'Danilo Priore' => 'support@prioregroup.com' }
   s.homepage                = 'https://github.com/priore/AVPlayerOverlay'
