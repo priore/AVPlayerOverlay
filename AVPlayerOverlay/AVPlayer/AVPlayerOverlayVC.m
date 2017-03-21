@@ -16,6 +16,7 @@
 @property (nonatomic, weak) UIWindow *mainWindow;
 @property (nonatomic, weak) UIViewController *mainParent;
 @property (nonatomic, weak) UISlider *mpSlider;
+@property (nonatomic, weak) UIButton *airPlayInternalButton;
 
 @property (nonatomic, assign) CGRect currentFrame;
 
@@ -23,7 +24,9 @@
 @property (nonatomic, strong) MPVolumeView *volume;
 
 @property (nonatomic, strong) id timeObserver;
+
 @property (nonatomic, assign) BOOL isVideoSliderMoving;
+@property (nonatomic, assign) BOOL isAirPlayRoutingVisible;
 
 @property (nonatomic, assign) BOOL hiddenStatusBar;
 @property (nonatomic, assign) BOOL hiddenNavBar;
@@ -35,6 +38,8 @@
 @end
 
 @implementation AVPlayerOverlayVC
+
+static void *AirPlayContext = &AirPlayContext;
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
@@ -57,7 +62,7 @@
     self.view.backgroundColor = [UIColor clearColor];
     
     // system volume
-    self.volume = [[MPVolumeView alloc] initWithFrame:CGRectZero];
+    _volume = [[MPVolumeView alloc] initWithFrame:CGRectZero];
     for (id view in _volume.subviews) {
         if ([view isKindOfClass:[UISlider class]]) {
             _mpSlider = view;
@@ -69,6 +74,8 @@
     _volumeSlider.transform = CGAffineTransformMakeRotation(-M_PI_2);
     _volumeSlider.value = [AVAudioSession sharedInstance].outputVolume;
     
+    _playButton.enabled = NO;
+    _playBigButton.enabled = NO;
     _playBigButton.layer.borderWidth = 1.0;
     _playBigButton.layer.borderColor = [UIColor whiteColor].CGColor;
     _playBigButton.layer.cornerRadius = _playBigButton.frame.size.width / 2.0;
@@ -77,8 +84,10 @@
     _subtitlesLabel.numberOfLines = 0;
     _subtitlesLabel.contentMode = UIViewContentModeBottom;
     _subtitlesLabel.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
+    _subtitlesButton.enabled = NO;
     
     [self videoSliderEnabled:NO];
+    [self setupAirPlay];
     
     // actions
     [_playButton addTarget:self action:@selector(didPlayButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
@@ -89,6 +98,7 @@
     [_videoSlider addTarget:self action:@selector(didVideoSliderTouchDown:) forControlEvents:UIControlEventTouchDown];
     [_volumeSlider addTarget:self action:@selector(didVolumeSliderValueChanged:) forControlEvents:UIControlEventValueChanged];
     [_subtitlesButton addTarget:self action:@selector(didSubtitlesButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
+    [_airPlayButton addTarget:self action:@selector(didAirPlayButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
     
     // tap gesture for hide/show player bar
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapGesture:)];
@@ -142,14 +152,26 @@
             
             _volumeSlider.value = 1.0;
             _videoSlider.value = 0.0;
+            _playButton.enabled = NO;
+            _playBigButton.enabled = NO;
 
         } else {
+            
+            if (_durationTimeLabel) {
+                CMTime duration = [self playerItemDuration];
+                _durationTimeLabel.text = CMTIME_IS_VALID(duration) ? [_subtitles makeSaveName:duration] : nil;
+            }
             
             __weak typeof(self) wself = self;
             self.timeObserver =  [_player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(0.5, NSEC_PER_SEC)
                                                                        queue:NULL
                                                                   usingBlock:^(CMTime time){
+                                                                      
                                                                       [wself updateProgressBar];
+                                                                      
+                                                                      if (wself.currentTimeLabel)
+                                                                          wself.currentTimeLabel.text = CMTIME_IS_VALID(time) ? [wself.subtitles makeSaveName:time] : nil;
+                                                                      
                                                                       if (!wself.subtitlesLabel.hidden && wself.subtitles.subtitleItems.count > 0)
                                                                       {
                                                                           NSInteger index = [wself.subtitles indexOfProperSubtitleWithGivenCMTime:time];
@@ -157,9 +179,12 @@
                                                                           wself.subtitlesLabel.attributedText = [wself attributedSubtitle:subtitle];
                                                                           [wself.subtitlesLabel setNeedsDisplay];
                                                                       }
+                                                                      
                                                                   }];
             _videoSlider.value = 0;
             _volumeSlider.value = _player.volume;
+            _playButton.enabled = YES;
+            _playBigButton.enabled = YES;
         }
         
         _playButton.selected = NO;
@@ -167,7 +192,6 @@
         _playBigButton.selected = NO;
 
         [self showPlayerBar];
-        [self autoHidePlayerBar];
         [self videoSliderEnabled:NO];
     }
 }
@@ -192,35 +216,64 @@
                 animations:(void(^)())animations
                 completion:(void(^)(BOOL finished))completion
 {
-    NSArray *constraints = self.view.constraints;
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstAttribute = %d", attribute];
-    NSArray *filteredArray = [constraints filteredArrayUsingPredicate:predicate];
-    NSLayoutConstraint *constraint = [filteredArray firstObject];
-    if (constraint.constant != value) {
-        [self.view removeConstraint:constraint];
-        constraint.constant = value;
-        [self.view addConstraint:constraint];
+    dispatch_async(dispatch_get_main_queue(), ^{
         
-        [UIView animateWithDuration:duration animations:^{
-            if (animations)
-                animations();
-            [self.view layoutIfNeeded];
-        } completion:completion];
+        NSArray *constraints = self.view.constraints;
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firstAttribute = %d", attribute];
+        NSArray *filteredArray = [constraints filteredArrayUsingPredicate:predicate];
+        NSLayoutConstraint *constraint = [filteredArray firstObject];
+        if (constraint.constant != value) {
+            [self.view removeConstraint:constraint];
+            constraint.constant = value;
+            [self.view addConstraint:constraint];
+            
+            [UIView animateWithDuration:duration animations:^{
+                if (animations)
+                    animations();
+                [self.view layoutIfNeeded];
+            } completion:completion];
+        }
+    });
+}
+
+#pragma mark - Observe
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if (context == AirPlayContext) {
+        if (object == _airPlayInternalButton && [[change valueForKey:NSKeyValueChangeNewKey] intValue] == 1) {
+            // airplayIsPresent
+            _isAirplayPresent = YES;
+            [self airplayBecomePresent];
+        }
+        else {
+            _isAirplayPresent = NO;
+            [self airplayResignPresent];
+        }
+    }
+    else
+    {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
+
 
 #pragma mark - PlayerBar
 
 - (void)autoHidePlayerBar
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hidePlayerBar) object:nil];
+
     if (_playBarAutoideInterval > 0) {
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hidePlayerBar) object:nil];
         [self performSelector:@selector(hidePlayerBar) withObject:nil afterDelay:_playBarAutoideInterval];
     }
 }
 
 - (void)hidePlayerBar
 {
+    if (_isAirplayInUse || _isAirPlayRoutingVisible)
+        return;
+    
     CGFloat height = _playerBarView.frame.size.height;
 
     __weak typeof(self) wself = self;
@@ -241,7 +294,7 @@
 {
     _playerBarView.hidden = NO;
     _playBigButton.hidden = NO;
-
+    
     __weak typeof(self) wself = self;
     [self setConstraintValue:0
                 forAttribute:NSLayoutAttributeBottom
@@ -410,6 +463,12 @@
         [self hideSubtitles];
 }
 
+- (void)didAirPlayButtonSelected:(id)sender
+{
+    [_airPlayInternalButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    [self checkAirPlayRoutingViewVisible];
+}
+
 #pragma mark - Overridable Methods
 
 - (void)willFullScreenModeFromParentViewController:(UIViewController*)parent
@@ -539,6 +598,7 @@
         if (error == nil) {
             NSString *context = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             _subtitles = [[SubtitlePackage alloc] initWithContext:context];
+            _subtitlesButton.enabled = _subtitles.subtitleItems.count > 0;
         }
     }];
     
@@ -578,6 +638,161 @@
     return attrString;
 }
 
+#pragma mark - Player Helper
+
+- (CMTime)playerItemDuration
+{
+    if (_player.currentItem && _player.currentItem.asset) {
+        if (_player.currentItem.status == AVPlayerItemStatusReadyToPlay && !CMTIME_IS_INDEFINITE(_player.currentItem.asset.duration)) {
+            return _player.currentItem.asset.duration;
+        }
+    }
+    
+    return kCMTimeInvalid;
+}
+
+#pragma mark - AirPlay
+
+- (void)setupAirPlay
+{
+    if (_airPlayButton)
+    {
+        _volume.hidden = YES;
+        [_airPlayButton insertSubview:_volume atIndex:0]; // important!
+
+        _airPlayButton.enabled = NO;
+        for (id current in _volume.subviews)
+        {
+            if([current isKindOfClass:[UIButton class]])
+            {
+                _airPlayInternalButton = (UIButton*)current;
+                [_airPlayInternalButton addObserver:self forKeyPath:@"alpha" options:NSKeyValueObservingOptionNew context:AirPlayContext];
+                break;
+            }
+        }
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(airPlayRouteChange:)
+                                                     name:AVAudioSessionRouteChangeNotification
+                                                   object:nil];
+    }
+}
+
+- (void)deallocAirplay
+{
+    @try {
+        [_airPlayInternalButton removeObserver:self forKeyPath:@"alpha"];
+    } @catch (NSException *exception) {
+        // NOP
+    }
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVAudioSessionRouteChangeNotification object:nil ];
+    
+    _isAirplayInUse = NO;
+}
+
+- (void)airPlayRouteChange:(NSNotification*)note
+{
+    BOOL inUse = [self checkAirPlayIsRunning];
+    [self airPlayChangeInUseState:inUse];
+}
+
+- (BOOL)checkAirPlayIsRunning
+{
+    BOOL isActive = NO;
+    
+    NSArray *outputs = [AVAudioSession sharedInstance].currentRoute.outputs;
+    for (AVAudioSessionPortDescription *outItem in outputs)
+    {
+        if([outItem.portType isEqualToString:AVAudioSessionPortAirPlay]) {
+            _airPlayPlayerName = outItem.portName;
+            isActive = YES;
+            break;
+        }
+    }
+    
+    return isActive;
+}
+
+- (void)airPlayChangeInUseState:(BOOL)isInUse
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(isInUse)
+        {
+            _isAirplayInUse = YES;
+            _airPlayButton.selected = YES;
+            
+            if(_subtitlesLabel && _subtitles.subtitleItems.count > 0) {
+                _subtitlesButton.enabled = NO;
+                [self hideSubtitles];
+            }
+        }
+        else
+        {
+            _isAirplayInUse = NO;
+            _airPlayButton.selected = NO;
+            
+            if(_subtitlesLabel && _subtitles.subtitleItems.count > 0 && _subtitlesButton.selected) {
+                _subtitlesButton.enabled = YES;
+                [self showSubtitles];
+            }
+        }
+        
+        [self showPlayerBar];
+
+        [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCAirPlayInUseNotification
+                                                            object:self
+                                                          userInfo:@{kAVPlayerOverlayVCAirPlayInUse : @(_isAirplayInUse)}];
+    });
+}
+
+- (void)checkAirPlayRoutingViewVisible
+{
+    static BOOL routingVisible = NO;
+    
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    _isAirPlayRoutingVisible = [self isAirPlayRoutingInView:window];
+    if (_isAirPlayRoutingVisible != routingVisible) {
+        routingVisible = _isAirPlayRoutingVisible;
+        if (routingVisible == NO) {
+            [self autoHidePlayerBar];
+            return;
+        }
+    }
+
+    [self performSelector:@selector(checkAirPlayRoutingViewVisible) withObject:nil afterDelay:1];
+}
+
+- (BOOL)isAirPlayRoutingInView:(UIView *)view
+{
+    BOOL ret = NO;
+    for (id subview in view.subviews)
+    {
+        NSString *className = NSStringFromClass([subview class]);
+        if ([className hasPrefix:@"MPAVRouting"]) {
+            ret = YES;
+            break;
+        } else {
+            ret = [self isAirPlayRoutingInView:subview];
+            if (ret) break;
+        }
+    }
+    
+    return ret;
+}
+
+- (void)airplayBecomePresent
+{
+    _airPlayButton.enabled = YES;
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCAirPlayBecomePresentNotification object:self];
+}
+
+- (void)airplayResignPresent
+{
+    _airPlayButton.enabled = NO;
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCAirPlayResignPresentNotification object:self];
+}
+
 #pragma mark - Device rotation
 
 - (void)forceDeviceOrientation:(UIInterfaceOrientation)orientation
@@ -607,5 +822,6 @@
         }
     }];
 }
+
 
 @end

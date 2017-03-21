@@ -100,10 +100,10 @@
     @synchronized (self) {
         _videoURL = videoURL;
 
-        if (_videoURL) {
+        if (_videoURL != nil) {
             
             AVAsset *asset = [self.player.currentItem asset];
-            if (_videoURL != nil && [asset isKindOfClass:[AVURLAsset class]]) {
+            if ([asset isKindOfClass:[AVURLAsset class]]) {
                 NSURL *current_url = [(AVURLAsset*)asset URL];
                 if ([current_url.absoluteString isEqualToString:_videoURL.absoluteString])
                     return;

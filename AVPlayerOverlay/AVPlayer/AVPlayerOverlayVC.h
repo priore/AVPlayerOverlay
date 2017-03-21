@@ -4,8 +4,13 @@
 //  Created by Danilo Priore on 28/04/16.
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
-#define AVPlayerOverlayVCFullScreenNotification     @"AVPlayerOverlayVCFullScreen"
-#define AVPlayerOverlayVCNormalScreenNotification   @"AVPlayerOverlayVCNormalScreen"
+#define AVPlayerOverlayVCFullScreenNotification             @"AVPlayerOverlayVCFullScreen"
+#define AVPlayerOverlayVCNormalScreenNotification           @"AVPlayerOverlayVCNormalScreen"
+#define AVPlayerOverlayVCAirPlayInUseNotification           @"AVPlayerOverlayVCAirPlayInUse"
+#define AVPlayerOverlayVCAirPlayBecomePresentNotification   @"AVPlayerOverlayVCAirPlayBecomePresent"
+#define AVPlayerOverlayVCAirPlayResignPresentNotification   @"AVPlayerOverlayVCAirPlayResignPresent"
+
+#define kAVPlayerOverlayVCAirPlayInUse  @"airPlayInUse"
 
 @import UIKit;
 
@@ -25,10 +30,13 @@ IB_DESIGNABLE
 @property (nonatomic, weak) IBOutlet UIButton *playBigButton;
 @property (nonatomic, weak) IBOutlet UIButton *volumeButton;
 @property (nonatomic, weak) IBOutlet UIButton *fullscreenButton;
+@property (nonatomic, weak) IBOutlet UIButton *airPlayButton;
 @property (nonatomic, weak) IBOutlet UIButton *subtitlesButton;
 @property (nonatomic, weak) IBOutlet UISlider *videoSlider;
 @property (nonatomic, weak) IBOutlet UISlider *volumeSlider;
 @property (nonatomic, weak) IBOutlet UILabel *subtitlesLabel;
+@property (nonatomic, weak) IBOutlet UILabel *currentTimeLabel;
+@property (nonatomic, weak) IBOutlet UILabel *durationTimeLabel;
 
 @property (nonatomic, weak) AVPlayer *player;
 
@@ -36,6 +44,10 @@ IB_DESIGNABLE
 @property (nonatomic, assign) IBInspectable AVPlayerFullscreenAutorotaionMode autorotationMode;
 
 @property (nonatomic, assign, readonly) BOOL isFullscreen;
+@property (nonatomic, assign, readonly) BOOL isAirplayInUse;
+@property (nonatomic, assign, readonly) BOOL isAirplayPresent;
+
+@property (nonatomic, strong, readonly) NSString *airPlayPlayerName;
 
 - (void)updateProgressBar;
 
@@ -67,6 +79,15 @@ IB_DESIGNABLE
 - (void)loadSubtitlesWithURL:(NSURL*)url;
 
 - (NSAttributedString*)attributedSubtitle:(id)subtitle;
+
+- (void)setupAirPlay;
+- (void)deallocAirplay;
+- (void)airPlayRouteChange:(NSNotification*)note;
+- (BOOL)checkAirPlayIsRunning;
+- (void)airPlayChangeInUseState:(BOOL)isInUse;
+
+- (void)airplayBecomePresent;
+- (void)airplayResignPresent;
 
 - (void)forceDeviceOrientation:(UIInterfaceOrientation)orientation;
 - (void)deviceOrientationDidChange:(NSNotification *)notification;

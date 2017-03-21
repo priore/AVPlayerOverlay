@@ -219,7 +219,8 @@ typedef enum {
         hour=[NSString stringWithFormat:@"0%d-",(int)timeInSecond/3600];
     }
     else{
-        hour=@"00-";
+        //hour=@"00-";
+        hour=@" ";
     }
     
     NSString *min;
@@ -237,6 +238,7 @@ typedef enum {
         sec=[NSString stringWithFormat:@"%d-",(int)timeInSecond%3600%60];
     }
     
+    /*
     float fract=(timeInSecond-(int)timeInSecond)*100;
     NSString *fra;
     if (fract<10) {
@@ -245,8 +247,10 @@ typedef enum {
         fra=[NSString stringWithFormat:@"%d",(int)fract];
     }
     
-    
     NSString *saveName=[[[hour stringByAppendingString:min] stringByAppendingString:sec] stringByAppendingString:fra];
+    */
+    
+    NSString *saveName=[[hour stringByAppendingString:min] stringByAppendingString:sec];
     return saveName;
 }
 
