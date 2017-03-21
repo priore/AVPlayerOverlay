@@ -4,12 +4,10 @@
 //  Created by Danilo Priore on 28/04/16.
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
-IB_DESIGNABLE
-
 #define AVPlayerOverlayVCFullScreenNotification     @"AVPlayerOverlayVCFullScreen"
 #define AVPlayerOverlayVCNormalScreenNotification   @"AVPlayerOverlayVCNormalScreen"
 
-#import <UIKit/UIKit.h>
+@import UIKit;
 
 @class AVPlayer;
 
@@ -19,6 +17,7 @@ typedef NS_ENUM(NSInteger, AVPlayerFullscreenAutorotaionMode)
     AVPlayerFullscreenAutorotationLandscapeMode
 };
 
+IB_DESIGNABLE
 @interface AVPlayerOverlayVC : UIViewController
 
 @property (nonatomic, weak) IBOutlet UIView *playerBarView;
@@ -26,8 +25,10 @@ typedef NS_ENUM(NSInteger, AVPlayerFullscreenAutorotaionMode)
 @property (nonatomic, weak) IBOutlet UIButton *playBigButton;
 @property (nonatomic, weak) IBOutlet UIButton *volumeButton;
 @property (nonatomic, weak) IBOutlet UIButton *fullscreenButton;
+@property (nonatomic, weak) IBOutlet UIButton *subtitlesButton;
 @property (nonatomic, weak) IBOutlet UISlider *videoSlider;
 @property (nonatomic, weak) IBOutlet UISlider *volumeSlider;
+@property (nonatomic, weak) IBOutlet UILabel *subtitlesLabel;
 
 @property (nonatomic, weak) AVPlayer *player;
 
@@ -43,9 +44,12 @@ typedef NS_ENUM(NSInteger, AVPlayerFullscreenAutorotaionMode)
 - (void)showPlayerBar;
 
 - (void)didTapGesture:(id)sender;
+- (void)didDoubleTapGesture:(id)sender;
+- (void)didPinchGesture:(id)sender;
 - (void)didPlayButtonSelected:(id)sender;
 - (void)didVolumeButtonSelected:(id)sender;
 - (void)didFullscreenButtonSelected:(id)sender;
+- (void)didSubtitlesButtonSelected:(id)sender;
 
 - (void)didVolumeSliderValueChanged:(id)sender;
 
@@ -57,5 +61,14 @@ typedef NS_ENUM(NSInteger, AVPlayerFullscreenAutorotaionMode)
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent;
 - (void)willNormalScreenModeToParentViewController:(UIViewController*)parent;
 - (void)didNormalScreenModeToParentViewController:(UIViewController*)parent;
+
+- (void)showSubtitles;
+- (void)hideSubtitles;
+- (void)loadSubtitlesWithURL:(NSURL*)url;
+
+- (NSAttributedString*)attributedSubtitle:(id)subtitle;
+
+- (void)forceDeviceOrientation:(UIInterfaceOrientation)orientation;
+- (void)deviceOrientationDidChange:(NSNotification *)notification;
 
 @end

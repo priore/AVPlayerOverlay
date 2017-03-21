@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9F0C03A41E7B013B00DD60BD /* SubtitlePackage.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F0C03A31E7B013B00DD60BD /* SubtitlePackage.m */; };
 		9F16AFF01CD3E3980082CC15 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16AFEF1CD3E3980082CC15 /* main.m */; };
 		9F16AFF31CD3E3980082CC15 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16AFF21CD3E3980082CC15 /* AppDelegate.m */; };
 		9F16AFF61CD3E3980082CC15 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16AFF51CD3E3980082CC15 /* ViewController.m */; };
@@ -20,6 +21,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9F0C03A21E7B013B00DD60BD /* SubtitlePackage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SubtitlePackage.h; sourceTree = "<group>"; };
+		9F0C03A31E7B013B00DD60BD /* SubtitlePackage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SubtitlePackage.m; sourceTree = "<group>"; };
 		9F16AFEB1CD3E3980082CC15 /* AVPlayerOverlay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVPlayerOverlay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F16AFEF1CD3E3980082CC15 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9F16AFF11CD3E3980082CC15 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -107,6 +110,8 @@
 				9F16B0071CD3E4D00082CC15 /* AVPlayerOverlayVC.m */,
 				9F16B00A1CD3E4D00082CC15 /* AVPlayerVC.h */,
 				9F16B00B1CD3E4D00082CC15 /* AVPlayerVC.m */,
+				9F0C03A21E7B013B00DD60BD /* SubtitlePackage.h */,
+				9F0C03A31E7B013B00DD60BD /* SubtitlePackage.m */,
 			);
 			path = AVPlayer;
 			sourceTree = "<group>";
@@ -137,7 +142,7 @@
 		9F16AFE31CD3E3980082CC15 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Danilo Priore";
 				TargetAttributes = {
 					9F16AFEA1CD3E3980082CC15 = {
@@ -187,6 +192,7 @@
 				9F16B00C1CD3E4D00082CC15 /* AVPlayerOverlayVC.m in Sources */,
 				9F16AFF31CD3E3980082CC15 /* AppDelegate.m in Sources */,
 				9F16AFF01CD3E3980082CC15 /* main.m in Sources */,
+				9F0C03A41E7B013B00DD60BD /* SubtitlePackage.m in Sources */,
 				9F16B00F1CD3E4D00082CC15 /* AVPlayerVC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -227,8 +233,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -272,8 +280,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";

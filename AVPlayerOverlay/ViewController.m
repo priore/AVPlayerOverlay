@@ -7,8 +7,11 @@
 //
 
 #import "ViewController.h"
+#import "AVPlayerVC.h"
 
 @interface ViewController ()
+
+@property (nonatomic, weak) AVPlayerVC *playerVC;
 
 @end
 
@@ -18,6 +21,13 @@
     
     [super viewDidLoad];
     
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([segue.destinationViewController isKindOfClass:[AVPlayerVC class]]) {
+        _playerVC = segue.destinationViewController;
+    }
 }
 
 @end

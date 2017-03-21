@@ -51,9 +51,10 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSDictionary *dict = channels[indexPath.row];
-    NSURL *url = [NSURL URLWithString:dict[@"URL"]];
+    NSURL *videoURL = [NSURL URLWithString:dict[@"URL"]];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCSetVideoURLNotification object:url];
+    NSURL *srtURL = [NSURL URLWithString:dict[@"Subtitles"]];
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCSetVideoURLNotification object:videoURL userInfo:srtURL ? @{kAVPlayerVCSubtitleURL: srtURL} : nil];
 }
 
 @end

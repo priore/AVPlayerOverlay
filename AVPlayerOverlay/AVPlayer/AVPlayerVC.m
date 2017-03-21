@@ -4,10 +4,12 @@
 //  Created by Danilo Priore on 28/04/16.
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
+#define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 
-#import <CoreMedia/CoreMedia.h>
-#import <AVFoundation/AVFoundation.h>
 #import "AVPlayerVC.h"
+
+@import CoreMedia;
+@import AVFoundation;
 
 @implementation AVPlayerVC
 
@@ -54,7 +56,6 @@
     [self addChildViewController:_overlayVC];
     [self.view addSubview:_overlayVC.view];
     [_overlayVC didMoveToParentViewController:self];
-    
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -98,8 +99,30 @@
 {
     @synchronized (self) {
         _videoURL = videoURL;
+
+        if (_videoURL) {
+            
+            AVAsset *asset = [self.player.currentItem asset];
+            if (_videoURL != nil && [asset isKindOfClass:[AVURLAsset class]]) {
+                NSURL *current_url = [(AVURLAsset*)asset URL];
+                if ([current_url.absoluteString isEqualToString:_videoURL.absoluteString])
+                    return;
+            }
+            
+            NSDictionary *options = _userAgent.length > 0 ? @{@"AVURLAssetHTTPHeaderFieldsKey" : @{@"User-Agent": _userAgent}} : nil;
+            AVURLAsset *url_asset = [AVURLAsset URLAssetWithURL:_videoURL options:options];
+            AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:url_asset];
+            
+            // workaround for iOS 8.0 video error -11800
+            if(self.player == nil || SYSTEM_VERSION_LESS_THAN(@"9.0")) {
+                self.player = [AVPlayer playerWithPlayerItem:item];
+            } else {
+                [self.player replaceCurrentItemWithPlayerItem:item];
+            }
+        } else {
+            [self.player replaceCurrentItemWithPlayerItem:nil];
+        }
         
-        self.player = [AVPlayer playerWithURL:videoURL];
     }
 }
 
@@ -107,7 +130,7 @@
 {
     
 #ifdef DEBUG
-    NSLog(@"Remote control event %i subtype %i", event.type, event.subtype);
+    NSLog(@"Remote control event %i subtype %i", (int)event.type, (int)event.subtype);
 #endif
 
     if (event.type == UIEventTypeRemoteControl && self.player) {
@@ -173,6 +196,7 @@
 - (void)avPlayerVCSetVideoURLNotification:(NSNotification*)note
 {
     self.videoURL = note.object;
+    [_overlayVC loadSubtitlesWithURL:note.userInfo[kAVPlayerVCSubtitleURL]];
 }
 
 @end

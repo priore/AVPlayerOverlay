@@ -18,15 +18,7 @@
 			<key>Icon</key>
 			<string>twit.png</string>
 			<key>URL</key>
-			<string>http://iphone-streaming.ustream.tv/ustreamVideo/1524/streams/live/playlist.m3u8</string>
-		</dict>
-		<dict>
-			<key>ChannelName</key>
-			<string>Bloomberg Asia</string>
-			<key>Icon</key>
-			<string>bloomberg.png</string>
-			<key>URL</key>
-			<string>http://btvasia-i.akamaihd.net/hls/live/203322/btvasia_ios/P1/M24K.m3u8</string>
+			<string>http://iphone-streaming.ustream.tv/uhls/1524/streams/live/iphone/playlist.m3u8</string>
 		</dict>
 		<dict>
 			<key>ChannelName</key>
@@ -38,27 +30,11 @@
 		</dict>
 		<dict>
 			<key>ChannelName</key>
-			<string>Vevo</string>
+			<string>Smile of a Child</string>
 			<key>Icon</key>
-			<string>vevo.png</string>
+			<string>smile.jpg</string>
 			<key>URL</key>
-			<string>http://vevoplaylist-live.hls.adaptive.level3.net/vevo/ch1/05/prog_index.m3u8</string>
-		</dict>
-		<dict>
-			<key>ChannelName</key>
-			<string>Cinestream</string>
-			<key>Icon</key>
-			<string>cinestream.png</string>
-			<key>URL</key>
-			<string>http://68.71.42.179/live/livestream1/playlist.m3u8</string>
-		</dict>
-		<dict>
-			<key>ChannelName</key>
-			<string>Jasmi.TV</string>
-			<key>Icon</key>
-			<string>jasmin.png</string>
-			<key>URL</key>
-			<string>http://109.71.162.112:1935/live/sd.jasminchannel.stream/PAZ_Chega_de_Guerras.m3u8</string>
+			<string>http://acaooyalahd2-lh.akamaihd.net/i/TBN04_delivery@186242/master.m3u8</string>
 		</dict>
 	</array>
 </dict>

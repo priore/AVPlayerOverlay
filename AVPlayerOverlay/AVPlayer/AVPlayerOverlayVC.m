@@ -5,6 +5,7 @@
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
 #import "AVPlayerOverlayVC.h"
+#import "SubtitlePackage.h"
 
 @import AVFoundation;
 @import MediaPlayer;
@@ -24,7 +25,12 @@
 @property (nonatomic, strong) id timeObserver;
 @property (nonatomic, assign) BOOL isVideoSliderMoving;
 
+@property (nonatomic, assign) BOOL hiddenStatusBar;
+@property (nonatomic, assign) BOOL hiddenNavBar;
+
 @property (nonatomic, assign) UIDeviceOrientation currentOrientation;
+
+@property (nonatomic, strong) SubtitlePackage *subtitles;
 
 @end
 
@@ -67,6 +73,11 @@
     _playBigButton.layer.borderColor = [UIColor whiteColor].CGColor;
     _playBigButton.layer.cornerRadius = _playBigButton.frame.size.width / 2.0;
     
+    _subtitlesLabel.hidden = YES;
+    _subtitlesLabel.numberOfLines = 0;
+    _subtitlesLabel.contentMode = UIViewContentModeBottom;
+    _subtitlesLabel.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
+    
     [self videoSliderEnabled:NO];
     
     // actions
@@ -77,10 +88,20 @@
     [_videoSlider addTarget:self action:@selector(didVideoSliderTouchUp:) forControlEvents:UIControlEventTouchUpInside];
     [_videoSlider addTarget:self action:@selector(didVideoSliderTouchDown:) forControlEvents:UIControlEventTouchDown];
     [_volumeSlider addTarget:self action:@selector(didVolumeSliderValueChanged:) forControlEvents:UIControlEventValueChanged];
+    [_subtitlesButton addTarget:self action:@selector(didSubtitlesButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
     
-    // tap gesture
+    // tap gesture for hide/show player bar
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapGesture:)];
     [self.view addGestureRecognizer:tap];
+    
+    // double tap gesture for normal and fullscreen
+    UITapGestureRecognizer *doubleTapGesture=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didDoubleTapGesture:)];
+    doubleTapGesture.numberOfTapsRequired = 2;
+    [self.view addGestureRecognizer:doubleTapGesture];
+    
+    // pinch gesture for normal and fullscreen
+    UIPinchGestureRecognizer *pinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(didPinchGesture:)];
+    [self.view addGestureRecognizer:pinchGesture];
     
     // device rotation
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
@@ -88,6 +109,7 @@
     
     [self.view layoutIfNeeded];
     [self autoHidePlayerBar];
+    
 }
 
 - (void)dealloc
@@ -124,10 +146,17 @@
         } else {
             
             __weak typeof(self) wself = self;
-            self.timeObserver =  [_player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(1.0 / 60.0, NSEC_PER_SEC)
+            self.timeObserver =  [_player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(0.5, NSEC_PER_SEC)
                                                                        queue:NULL
                                                                   usingBlock:^(CMTime time){
                                                                       [wself updateProgressBar];
+                                                                      if (!wself.subtitlesLabel.hidden && wself.subtitles.subtitleItems.count > 0)
+                                                                      {
+                                                                          NSInteger index = [wself.subtitles indexOfProperSubtitleWithGivenCMTime:time];
+                                                                          IndividualSubtitle *subtitle = wself.subtitles.subtitleItems[index];
+                                                                          wself.subtitlesLabel.attributedText = [wself attributedSubtitle:subtitle];
+                                                                          [wself.subtitlesLabel setNeedsDisplay];
+                                                                      }
                                                                   }];
             _videoSlider.value = 0;
             _volumeSlider.value = _player.volume;
@@ -227,7 +256,7 @@
 
 #pragma mark - Actions
 
-- (void)didTapGesture:(id)sender
+- (void)didTapGesture:(UITapGestureRecognizer*)sender
 {
     if (_playerBarView.hidden)
     {
@@ -235,8 +264,19 @@
     }
     else if (_volumeSlider.hidden)
     {
-        [self didPlayButtonSelected:sender];
+        [self didPlayButtonSelected:nil];
     }
+}
+
+- (void)didDoubleTapGesture:(UITapGestureRecognizer*)sender
+{
+    [self didFullscreenButtonSelected:nil];
+}
+
+- (void)didPinchGesture:(UIPinchGestureRecognizer*)sender
+{
+    if ((sender.scale > 1.0 && !_isFullscreen) || (sender.scale <= 1.0 && _isFullscreen))
+        [self didFullscreenButtonSelected:nil];
 }
 
 - (void)didPlayButtonSelected:(id)sender
@@ -361,11 +401,21 @@
     [self autoHidePlayerBar];
 }
 
+- (void)didSubtitlesButtonSelected:(id)sender
+{
+    _subtitlesButton.selected = !_subtitlesButton.selected;
+    if (_subtitlesButton.selected)
+        [self showSubtitles];
+    else
+        [self hideSubtitles];
+}
+
 #pragma mark - Overridable Methods
 
 - (void)willFullScreenModeFromParentViewController:(UIViewController*)parent
 {
-    // NOP
+    _hiddenNavBar = self.navigationController.isNavigationBarHidden;
+    _hiddenStatusBar = [UIApplication sharedApplication].isStatusBarHidden;
 }
 
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent
@@ -381,6 +431,9 @@
             [self forceDeviceOrientation:UIInterfaceOrientationUnknown];
             [self forceDeviceOrientation:UIInterfaceOrientationLandscapeRight];
         }
+        
+        [self.navigationController setNavigationBarHidden:YES animated:YES];
+        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     }
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCFullScreenNotification object:self];
@@ -390,6 +443,9 @@
 {
         if (_autorotationMode == AVPlayerFullscreenAutorotationLandscapeMode)
             [self forceDeviceOrientation:UIInterfaceOrientationPortrait];
+    
+    [[UIApplication sharedApplication] setStatusBarHidden:_hiddenStatusBar withAnimation:UIStatusBarAnimationFade];
+    [self.navigationController setNavigationBarHidden:_hiddenNavBar animated:YES];
 }
 
 - (void)didNormalScreenModeToParentViewController:(UIViewController*)parent
@@ -450,6 +506,78 @@
     }
 }
 
+#pragma mark - Subtitles
+
+- (void)showSubtitles
+{
+    _subtitlesLabel.alpha = 0.0;
+    _subtitlesLabel.hidden = NO;
+    [UIView animateWithDuration:.25 animations:^{
+        _subtitlesLabel.alpha = 1.0;
+    }];
+}
+
+- (void)hideSubtitles
+{
+    [UIView animateWithDuration:.25 animations:^{
+        _subtitlesLabel.alpha = 0.0;
+    } completion:^(BOOL finished) {
+        _subtitlesLabel.hidden = YES;
+    }];
+}
+
+- (void)loadSubtitlesWithURL:(NSURL*)url
+{
+    _subtitles = nil;
+    
+    if (url == nil || _subtitlesButton == nil || _subtitlesLabel == nil)
+        return;
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error == nil) {
+            NSString *context = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            _subtitles = [[SubtitlePackage alloc] initWithContext:context];
+        }
+    }];
+    
+    [task resume];
+}
+
+- (NSAttributedString*)attributedSubtitle:(IndividualSubtitle*)subtitle
+{
+    NSDictionary *options = @{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType};
+    NSDictionary *attrsDictionary = [NSDictionary dictionaryWithObject:_subtitlesLabel.textColor forKey:NSForegroundColorAttributeName];
+    
+    __block NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:@"" attributes:attrsDictionary];;
+    
+    NSString *str = [NSString stringWithFormat:@"%@\n%@", subtitle.ChiSubtitle ?: @"", subtitle.EngSubtitle ?: @""];
+    [str enumerateLinesUsingBlock:^(NSString *line, BOOL *stop)
+     {
+         NSError *error;
+         line = [NSString stringWithFormat:@"<font color=\"#FFFFFF\">%@</font>", line];
+         NSAttributedString *preview = [[NSAttributedString alloc] initWithData:[line dataUsingEncoding:NSUTF8StringEncoding]
+                                                                        options:options
+                                                             documentAttributes:nil
+                                                                          error:&error];
+         [attrString appendAttributedString:preview];
+         
+         if (line.length)
+             [attrString appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n" attributes:attrsDictionary]];
+     }];
+    
+    NSRange rng = NSMakeRange(0, attrString.length);
+    NSMutableParagraphStyle *paragraphStyle = NSMutableParagraphStyle.new;
+    paragraphStyle.alignment = NSTextAlignmentCenter;
+    paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
+    
+    [attrString addAttribute:NSFontAttributeName value:_subtitlesLabel.font range:NSMakeRange(0, attrString.length)];
+    [attrString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:rng];
+    
+    return attrString;
+}
+
 #pragma mark - Device rotation
 
 - (void)forceDeviceOrientation:(UIInterfaceOrientation)orientation
@@ -479,6 +607,5 @@
         }
     }];
 }
-
 
 @end
