@@ -7,22 +7,33 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9F0C03A41E7B013B00DD60BD /* SubtitlePackage.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F0C03A31E7B013B00DD60BD /* SubtitlePackage.m */; };
+		9F10566A1E82D19800AAF9F2 /* AVPlayerOverlayVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F1056651E82D19800AAF9F2 /* AVPlayerOverlayVC.m */; };
+		9F10566B1E82D19800AAF9F2 /* AVPlayerVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F1056671E82D19800AAF9F2 /* AVPlayerVC.m */; };
+		9F10566C1E82D19800AAF9F2 /* SubtitlePackage.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F1056691E82D19800AAF9F2 /* SubtitlePackage.m */; };
+		9F10566F1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F10566E1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.m */; };
 		9F16AFF01CD3E3980082CC15 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16AFEF1CD3E3980082CC15 /* main.m */; };
 		9F16AFF31CD3E3980082CC15 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16AFF21CD3E3980082CC15 /* AppDelegate.m */; };
 		9F16AFF61CD3E3980082CC15 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16AFF51CD3E3980082CC15 /* ViewController.m */; };
 		9F16AFF91CD3E3980082CC15 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F16AFF71CD3E3980082CC15 /* Main.storyboard */; };
 		9F16AFFB1CD3E3980082CC15 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F16AFFA1CD3E3980082CC15 /* Assets.xcassets */; };
 		9F16AFFE1CD3E3980082CC15 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F16AFFC1CD3E3980082CC15 /* LaunchScreen.storyboard */; };
-		9F16B00C1CD3E4D00082CC15 /* AVPlayerOverlayVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16B0071CD3E4D00082CC15 /* AVPlayerOverlayVC.m */; };
-		9F16B00F1CD3E4D00082CC15 /* AVPlayerVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16B00B1CD3E4D00082CC15 /* AVPlayerVC.m */; };
 		9F16B0171CD40E340082CC15 /* TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16B0161CD40E340082CC15 /* TableViewController.m */; };
 		9F16B0191CD40EC10082CC15 /* Channels.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9F16B0181CD40EC10082CC15 /* Channels.plist */; };
+		B3CF17E5ADEBFC417C9440DF /* libPods-AVPlayerOverlay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D6675FC9D4AE2D6849A4B94 /* libPods-AVPlayerOverlay.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		9F0C03A21E7B013B00DD60BD /* SubtitlePackage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SubtitlePackage.h; sourceTree = "<group>"; };
-		9F0C03A31E7B013B00DD60BD /* SubtitlePackage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SubtitlePackage.m; sourceTree = "<group>"; };
+		02028A5ABE143B5C2B16BE11 /* Pods-AVPlayerOverlay.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AVPlayerOverlay.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AVPlayerOverlay/Pods-AVPlayerOverlay.debug.xcconfig"; sourceTree = "<group>"; };
+		2D6675FC9D4AE2D6849A4B94 /* libPods-AVPlayerOverlay.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AVPlayerOverlay.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D1705C8E5F1C69A8A76077B /* Pods-AVPlayerOverlay.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AVPlayerOverlay.release.xcconfig"; path = "Pods/Target Support Files/Pods-AVPlayerOverlay/Pods-AVPlayerOverlay.release.xcconfig"; sourceTree = "<group>"; };
+		9F1056641E82D19800AAF9F2 /* AVPlayerOverlayVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerOverlayVC.h; sourceTree = "<group>"; };
+		9F1056651E82D19800AAF9F2 /* AVPlayerOverlayVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerOverlayVC.m; sourceTree = "<group>"; };
+		9F1056661E82D19800AAF9F2 /* AVPlayerVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerVC.h; sourceTree = "<group>"; };
+		9F1056671E82D19800AAF9F2 /* AVPlayerVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerVC.m; sourceTree = "<group>"; };
+		9F1056681E82D19800AAF9F2 /* SubtitlePackage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SubtitlePackage.h; sourceTree = "<group>"; };
+		9F1056691E82D19800AAF9F2 /* SubtitlePackage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SubtitlePackage.m; sourceTree = "<group>"; };
+		9F10566D1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerPIPOverlayVC.h; sourceTree = "<group>"; };
+		9F10566E1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerPIPOverlayVC.m; sourceTree = "<group>"; };
 		9F16AFEB1CD3E3980082CC15 /* AVPlayerOverlay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVPlayerOverlay.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F16AFEF1CD3E3980082CC15 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9F16AFF11CD3E3980082CC15 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -33,10 +44,6 @@
 		9F16AFFA1CD3E3980082CC15 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9F16AFFD1CD3E3980082CC15 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9F16AFFF1CD3E3980082CC15 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9F16B0061CD3E4D00082CC15 /* AVPlayerOverlayVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerOverlayVC.h; sourceTree = "<group>"; };
-		9F16B0071CD3E4D00082CC15 /* AVPlayerOverlayVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerOverlayVC.m; sourceTree = "<group>"; };
-		9F16B00A1CD3E4D00082CC15 /* AVPlayerVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerVC.h; sourceTree = "<group>"; };
-		9F16B00B1CD3E4D00082CC15 /* AVPlayerVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerVC.m; sourceTree = "<group>"; };
 		9F16B0151CD40E340082CC15 /* TableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewController.h; sourceTree = "<group>"; };
 		9F16B0161CD40E340082CC15 /* TableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewController.m; sourceTree = "<group>"; };
 		9F16B0181CD40EC10082CC15 /* Channels.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Channels.plist; sourceTree = "<group>"; };
@@ -50,17 +57,44 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3CF17E5ADEBFC417C9440DF /* libPods-AVPlayerOverlay.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		22C297105C542FAA5A0CAAF7 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				02028A5ABE143B5C2B16BE11 /* Pods-AVPlayerOverlay.debug.xcconfig */,
+				9D1705C8E5F1C69A8A76077B /* Pods-AVPlayerOverlay.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		9F1056631E82D19800AAF9F2 /* AVPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				9F1056661E82D19800AAF9F2 /* AVPlayerVC.h */,
+				9F1056671E82D19800AAF9F2 /* AVPlayerVC.m */,
+				9F1056641E82D19800AAF9F2 /* AVPlayerOverlayVC.h */,
+				9F1056651E82D19800AAF9F2 /* AVPlayerOverlayVC.m */,
+				9F10566D1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.h */,
+				9F10566E1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.m */,
+				9F1056681E82D19800AAF9F2 /* SubtitlePackage.h */,
+				9F1056691E82D19800AAF9F2 /* SubtitlePackage.m */,
+			);
+			path = AVPlayer;
+			sourceTree = "<group>";
+		};
 		9F16AFE21CD3E3980082CC15 = {
 			isa = PBXGroup;
 			children = (
 				9F16AFED1CD3E3980082CC15 /* AVPlayerOverlay */,
 				9F16AFEC1CD3E3980082CC15 /* Products */,
+				22C297105C542FAA5A0CAAF7 /* Pods */,
+				F5B84D5E01ACC8A5DB87AE63 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -82,10 +116,9 @@
 				9F16B0151CD40E340082CC15 /* TableViewController.h */,
 				9F16B0161CD40E340082CC15 /* TableViewController.m */,
 				9F16AFF71CD3E3980082CC15 /* Main.storyboard */,
-				9F16B0051CD3E4D00082CC15 /* AVPlayer */,
 				9F16AFFA1CD3E3980082CC15 /* Assets.xcassets */,
 				9F16AFFC1CD3E3980082CC15 /* LaunchScreen.storyboard */,
-				9F16AFFF1CD3E3980082CC15 /* Info.plist */,
+				9F1056631E82D19800AAF9F2 /* AVPlayer */,
 				9F16AFEE1CD3E3980082CC15 /* Supporting Files */,
 			);
 			path = AVPlayerOverlay;
@@ -94,6 +127,7 @@
 		9F16AFEE1CD3E3980082CC15 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				9F16AFFF1CD3E3980082CC15 /* Info.plist */,
 				9F72195E1CE60BDD00948B8B /* AVPlayerOverlay.podspec */,
 				9F72195F1CE60BDD00948B8B /* LICENSE */,
 				9F7219601CE60BDD00948B8B /* README.md */,
@@ -103,17 +137,12 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		9F16B0051CD3E4D00082CC15 /* AVPlayer */ = {
+		F5B84D5E01ACC8A5DB87AE63 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9F16B0061CD3E4D00082CC15 /* AVPlayerOverlayVC.h */,
-				9F16B0071CD3E4D00082CC15 /* AVPlayerOverlayVC.m */,
-				9F16B00A1CD3E4D00082CC15 /* AVPlayerVC.h */,
-				9F16B00B1CD3E4D00082CC15 /* AVPlayerVC.m */,
-				9F0C03A21E7B013B00DD60BD /* SubtitlePackage.h */,
-				9F0C03A31E7B013B00DD60BD /* SubtitlePackage.m */,
+				2D6675FC9D4AE2D6849A4B94 /* libPods-AVPlayerOverlay.a */,
 			);
-			path = AVPlayer;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -123,9 +152,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9F16B0021CD3E3980082CC15 /* Build configuration list for PBXNativeTarget "AVPlayerOverlay" */;
 			buildPhases = (
+				19E626FA88164DB9BC13E14E /* [CP] Check Pods Manifest.lock */,
 				9F16AFE71CD3E3980082CC15 /* Sources */,
 				9F16AFE81CD3E3980082CC15 /* Frameworks */,
 				9F16AFE91CD3E3980082CC15 /* Resources */,
+				6C8466CD3A912D1D983F018A /* [CP] Embed Pods Frameworks */,
+				E8C4738D6AB81D5EEBBA17F6 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -183,18 +215,67 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		19E626FA88164DB9BC13E14E /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		6C8466CD3A912D1D983F018A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AVPlayerOverlay/Pods-AVPlayerOverlay-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E8C4738D6AB81D5EEBBA17F6 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AVPlayerOverlay/Pods-AVPlayerOverlay-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		9F16AFE71CD3E3980082CC15 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				9F16AFF61CD3E3980082CC15 /* ViewController.m in Sources */,
+				9F10566F1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.m in Sources */,
 				9F16B0171CD40E340082CC15 /* TableViewController.m in Sources */,
-				9F16B00C1CD3E4D00082CC15 /* AVPlayerOverlayVC.m in Sources */,
+				9F10566B1E82D19800AAF9F2 /* AVPlayerVC.m in Sources */,
 				9F16AFF31CD3E3980082CC15 /* AppDelegate.m in Sources */,
 				9F16AFF01CD3E3980082CC15 /* main.m in Sources */,
-				9F0C03A41E7B013B00DD60BD /* SubtitlePackage.m in Sources */,
-				9F16B00F1CD3E4D00082CC15 /* AVPlayerVC.m in Sources */,
+				9F10566C1E82D19800AAF9F2 /* SubtitlePackage.m in Sources */,
+				9F10566A1E82D19800AAF9F2 /* AVPlayerOverlayVC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -310,6 +391,7 @@
 		};
 		9F16B0031CD3E3980082CC15 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 02028A5ABE143B5C2B16BE11 /* Pods-AVPlayerOverlay.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = JQRB98RUML;
@@ -322,6 +404,7 @@
 		};
 		9F16B0041CD3E3980082CC15 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9D1705C8E5F1C69A8A76077B /* Pods-AVPlayerOverlay.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = JQRB98RUML;

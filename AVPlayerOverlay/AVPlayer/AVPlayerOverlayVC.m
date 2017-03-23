@@ -5,23 +5,27 @@
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
 #import "AVPlayerOverlayVC.h"
+#import "AVPlayerPIPOverlayVC.h"
 #import "SubtitlePackage.h"
+#import <UIView+draggable/UIView+draggable.h>
 
 @import AVFoundation;
 @import MediaPlayer;
 
 @interface AVPlayerOverlayVC ()
 
-@property (nonatomic, weak) UIView *containerView;
-@property (nonatomic, weak) UIWindow *mainWindow;
-@property (nonatomic, weak) UIViewController *mainParent;
 @property (nonatomic, weak) UISlider *mpSlider;
+@property (nonatomic, weak) UIWindow *mainWindow;
 @property (nonatomic, weak) UIButton *airPlayInternalButton;
+@property (nonatomic, weak) UINavigationController *navController;
 
 @property (nonatomic, assign) CGRect currentFrame;
+@property (nonatomic, assign) CGRect originalFrame;
 
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) MPVolumeView *volume;
+@property (nonatomic, strong) UIView *containerView;
+@property (nonatomic, strong) UIViewController *mainParent;
 
 @property (nonatomic, strong) id timeObserver;
 
@@ -45,9 +49,17 @@ static void *AirPlayContext = &AirPlayContext;
 {
     if (self = [super initWithCoder:aDecoder]) {
         
+        _pipSize = CGSizeMake(200, 112.5);
+        _pipAnimationDuration = 1.0;
+        _pipPadding = 10.0;
+        
         _isFullscreen = NO;
         _isVideoSliderMoving = NO;
+        _barAnimationDuration = 1.0;
         _playBarAutoideInterval = 5.0;
+        _volumeAnimationDuration = .25;
+        _subtitlesAnimtationDuration = .15;
+        _fullscreenAnimtationDuration = .5;
         _autorotationMode = AVPlayerFullscreenAutorotationDefaultMode;
     }
     
@@ -99,13 +111,14 @@ static void *AirPlayContext = &AirPlayContext;
     [_volumeSlider addTarget:self action:@selector(didVolumeSliderValueChanged:) forControlEvents:UIControlEventValueChanged];
     [_subtitlesButton addTarget:self action:@selector(didSubtitlesButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
     [_airPlayButton addTarget:self action:@selector(didAirPlayButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
+    [_pipButton addTarget:self action:@selector(didPIPButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
     
     // tap gesture for hide/show player bar
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapGesture:)];
     [self.view addGestureRecognizer:tap];
     
     // double tap gesture for normal and fullscreen
-    UITapGestureRecognizer *doubleTapGesture=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didDoubleTapGesture:)];
+    UITapGestureRecognizer *doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didDoubleTapGesture:)];
     doubleTapGesture.numberOfTapsRequired = 2;
     [self.view addGestureRecognizer:doubleTapGesture];
     
@@ -116,6 +129,8 @@ static void *AirPlayContext = &AirPlayContext;
     // device rotation
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deactivatePIP) name:AVPlayerPIPOverlayVCwillPIPDeactivationNotification object:nil];
     
     [self.view layoutIfNeeded];
     [self autoHidePlayerBar];
@@ -129,9 +144,15 @@ static void *AirPlayContext = &AirPlayContext;
     if (_timeObserver)
         [_player removeTimeObserver:_timeObserver];
     _timeObserver = nil;
+    
+    [self deallocAirplay];
 
     _volume = nil;
     _player = nil;
+    
+    _navController = nil;
+    _containerView = nil;
+    _mainParent = nil;
 
     [_window removeFromSuperview], _window = nil;
     [_mainWindow makeKeyAndVisible];
@@ -176,8 +197,12 @@ static void *AirPlayContext = &AirPlayContext;
                                                                       {
                                                                           NSInteger index = [wself.subtitles indexOfProperSubtitleWithGivenCMTime:time];
                                                                           IndividualSubtitle *subtitle = wself.subtitles.subtitleItems[index];
-                                                                          wself.subtitlesLabel.attributedText = [wself attributedSubtitle:subtitle];
-                                                                          [wself.subtitlesLabel setNeedsDisplay];
+                                                                          [UIView transitionWithView:wself.subtitlesLabel
+                                                                                            duration:_subtitlesAnimtationDuration
+                                                                                             options:UIViewAnimationOptionTransitionCrossDissolve
+                                                                                          animations:^{
+                                                                                              wself.subtitlesLabel.attributedText = [wself attributedSubtitle:subtitle];
+                                                                                          } completion:nil];
                                                                       }
                                                                       
                                                                   }];
@@ -279,7 +304,7 @@ static void *AirPlayContext = &AirPlayContext;
     __weak typeof(self) wself = self;
     [self setConstraintValue:height
                 forAttribute:NSLayoutAttributeBottom
-                    duration:1.0
+                    duration:_barAnimationDuration
                   animations:^{
                       wself.volumeSlider.alpha = 0.0;
                       wself.playBigButton.alpha = 0.0;
@@ -298,7 +323,7 @@ static void *AirPlayContext = &AirPlayContext;
     __weak typeof(self) wself = self;
     [self setConstraintValue:0
                 forAttribute:NSLayoutAttributeBottom
-                    duration:0.5
+                    duration:_barAnimationDuration
                   animations:^{
                       wself.playBigButton.alpha = 1.0;
                   }
@@ -362,7 +387,7 @@ static void *AirPlayContext = &AirPlayContext;
         _volumeSlider.alpha = 0.0;
         _volumeSlider.hidden = NO;
         _volumeSlider.value = [AVAudioSession sharedInstance].outputVolume;
-        [UIView animateWithDuration:0.25
+        [UIView animateWithDuration:_volumeAnimationDuration
                          animations:^{
                              _volumeSlider.alpha = 1.0;
                          }];
@@ -371,7 +396,7 @@ static void *AirPlayContext = &AirPlayContext;
     else
     {
         _volumeSlider.alpha = 1.0;
-        [UIView animateWithDuration:0.25
+        [UIView animateWithDuration:_volumeAnimationDuration
                          animations:^{
                              _volumeSlider.alpha = 0.0;
                          } completion:^(BOOL finished) {
@@ -387,10 +412,11 @@ static void *AirPlayContext = &AirPlayContext;
     UIViewController *parent = self.parentViewController; // AVPlayerViewController
     
     if (_mainWindow == nil)
-        self.mainWindow = [UIApplication sharedApplication].keyWindow;
+        _mainWindow = [UIApplication sharedApplication].keyWindow;
 
     if (_window == nil)
     {
+        self.originalFrame = parent.view.frame;
         self.mainParent = parent.parentViewController;
         self.currentFrame = [parent.view convertRect:parent.view.frame toView:_mainWindow];
         self.containerView = parent.view.superview;
@@ -408,7 +434,7 @@ static void *AirPlayContext = &AirPlayContext;
         parent.view.frame = _window.bounds;
         
         [self willFullScreenModeFromParentViewController:parent];
-        [UIView animateKeyframesWithDuration:0.5
+        [UIView animateKeyframesWithDuration:_fullscreenAnimtationDuration
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
                                   animations:^{
@@ -425,7 +451,7 @@ static void *AirPlayContext = &AirPlayContext;
         [self willNormalScreenModeToParentViewController:parent];
         
         _window.frame = _mainWindow.bounds;
-        [UIView animateKeyframesWithDuration:0.5
+        [UIView animateKeyframesWithDuration:_fullscreenAnimtationDuration
                                        delay:0
                                      options:UIViewKeyframeAnimationOptionLayoutSubviews
                                   animations:^{
@@ -437,13 +463,16 @@ static void *AirPlayContext = &AirPlayContext;
                                       
                                       [_mainParent addChildViewController:parent];
                                       [_containerView addSubview:parent.view];
-                                      parent.view.frame = _containerView.bounds;
+                                      parent.view.frame = _originalFrame;
                                       [parent didMoveToParentViewController:_mainParent];
                                       
                                       [_mainWindow makeKeyAndVisible];
                                       
                                       _fullscreenButton.transform = CGAffineTransformIdentity;
                                       _isFullscreen = NO;
+
+                                      _containerView = nil;
+                                      _mainParent = nil;
                                       _window = nil;
                                       
                                       [self didNormalScreenModeToParentViewController:parent];
@@ -469,12 +498,22 @@ static void *AirPlayContext = &AirPlayContext;
     [self checkAirPlayRoutingViewVisible];
 }
 
+- (void)didPIPButtonSelected:(id)sender
+{
+    [self activatePIP];
+}
+
 #pragma mark - Overridable Methods
 
 - (void)willFullScreenModeFromParentViewController:(UIViewController*)parent
 {
     _hiddenNavBar = self.navigationController.isNavigationBarHidden;
     _hiddenStatusBar = [UIApplication sharedApplication].isStatusBarHidden;
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillFullScreenNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:willFullScreen:)])
+        [_delegate avPlayerOverlay:self willFullScreen:parent];
 }
 
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent
@@ -495,7 +534,10 @@ static void *AirPlayContext = &AirPlayContext;
         [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     }
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCFullScreenNotification object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidFullScreenNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:didFullScreen:)])
+        [_delegate avPlayerOverlay:self didFullScreen:parent];
 }
 
 - (void)willNormalScreenModeToParentViewController:(UIViewController*)parent
@@ -505,6 +547,11 @@ static void *AirPlayContext = &AirPlayContext;
     
     [[UIApplication sharedApplication] setStatusBarHidden:_hiddenStatusBar withAnimation:UIStatusBarAnimationFade];
     [self.navigationController setNavigationBarHidden:_hiddenNavBar animated:YES];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillNormalScreenNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:willNormalScreen:)])
+        [_delegate avPlayerOverlay:self willNormalScreen:parent];
 }
 
 - (void)didNormalScreenModeToParentViewController:(UIViewController*)parent
@@ -512,7 +559,43 @@ static void *AirPlayContext = &AirPlayContext;
     if (_autorotationMode == AVPlayerFullscreenAutorotationLandscapeMode)
         [self forceDeviceOrientation:UIInterfaceOrientationPortrait];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCNormalScreenNotification object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidNormalScreenNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:didNormalScreen:)])
+        [_delegate avPlayerOverlay:self didNormalScreen:parent];
+}
+
+- (void)willPIPBecomeActivationViewController:(UIViewController*)parent
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCPIPWillBecomeActiveNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:willPIPBecomeActive:)])
+        [_delegate avPlayerOverlay:self willPIPBecomeActive:parent];
+}
+
+- (void)didPIPBecomeActivationViewController:(UIViewController*)parent
+{
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCPIPDidBecomeActiveNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:didPIPBecomeActive:)])
+        [_delegate avPlayerOverlay:self didPIPBecomeActive:parent];
+}
+
+- (void)willPIPDeactivationViewController:(UIViewController*)parent
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCPIPWillDeactivationNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:willPIPDeactivation:)])
+        [_delegate avPlayerOverlay:self willPIPDeactivation:parent];
+}
+
+- (void)didPIPDeactivationViewController:(UIViewController*)parent
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCPIPDidDeactivationNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:didPIPDeactivation:)])
+        [_delegate avPlayerOverlay:self didPIPDeactivation:parent];
 }
 
 #pragma mark - Volume Slider
@@ -571,14 +654,14 @@ static void *AirPlayContext = &AirPlayContext;
 {
     _subtitlesLabel.alpha = 0.0;
     _subtitlesLabel.hidden = NO;
-    [UIView animateWithDuration:.25 animations:^{
+    [UIView animateWithDuration:_subtitlesAnimtationDuration animations:^{
         _subtitlesLabel.alpha = 1.0;
     }];
 }
 
 - (void)hideSubtitles
 {
-    [UIView animateWithDuration:.25 animations:^{
+    [UIView animateWithDuration:_subtitlesAnimtationDuration animations:^{
         _subtitlesLabel.alpha = 0.0;
     } completion:^(BOOL finished) {
         _subtitlesLabel.hidden = YES;
@@ -743,6 +826,9 @@ static void *AirPlayContext = &AirPlayContext;
         [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCAirPlayInUseNotification
                                                             object:self
                                                           userInfo:@{kAVPlayerOverlayVCAirPlayInUse : @(_isAirplayInUse)}];
+        
+        if ([_delegate respondsToSelector:@selector(avPlayerOverlay:airPlayInUse:)])
+            [_delegate avPlayerOverlay:self airPlayInUse:_isAirplayInUse];
     });
 }
 
@@ -785,12 +871,155 @@ static void *AirPlayContext = &AirPlayContext;
 {
     _airPlayButton.enabled = YES;
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCAirPlayBecomePresentNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:airPlayBecomePresent:)])
+        [_delegate avPlayerOverlay:self airPlayBecomePresent:nil];
 }
 
 - (void)airplayResignPresent
 {
     _airPlayButton.enabled = NO;
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCAirPlayResignPresentNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:airPlayResignPresent:)])
+        [_delegate avPlayerOverlay:self airPlayResignPresent:nil];
+}
+
+#pragma mark - PIP
+
+- (void)activatePIP
+{
+    if (!_isPIPActive)
+    {
+        [UIView animateWithDuration:_pipAnimationDuration / 4.0 animations:^{
+            self.view.alpha = 0.0;
+        } completion:^(BOOL finished) {
+            self.view.hidden = YES;
+            
+            UIViewController *parent = self.parentViewController; // AVPlayerViewController
+            
+            if (_mainWindow == nil)
+                _mainWindow = [UIApplication sharedApplication].keyWindow;
+            
+            self.originalFrame = parent.view.frame;
+            self.mainParent = parent.parentViewController;
+            self.currentFrame = [parent.view convertRect:parent.view.frame toView:_mainWindow];
+            self.containerView = parent.view.superview;
+            self.navController = _mainParent.navigationController;
+            
+            [parent removeFromParentViewController];
+            [parent.view removeFromSuperview];
+            [parent willMoveToParentViewController:nil];
+            
+            parent.view.frame = _currentFrame;
+            
+            if (_isFullscreen) {
+                [_window addSubview:parent.view];
+            } else {
+                [_mainWindow addSubview:parent.view];
+            }
+            
+            parent.view.autoresizesSubviews = YES;
+            parent.view.layer.zPosition = MAXFLOAT;
+            [parent.view enableDragging];
+            
+            CGFloat scaleX = 1.0 / (_currentFrame.size.width / _pipSize.width);
+            CGFloat scaleY = 1.0 / (_currentFrame.size.height / _pipSize.height);
+            
+            CGSize screen = [UIScreen mainScreen].bounds.size;
+            CGPoint finalCenter = CGPointMake((screen.width - _pipSize.width / 2.0f - _pipPadding),
+                                              (screen.height - _pipSize.height / 2.0f - _pipPadding));
+            CGFloat deltaX = finalCenter.x - parent.view.center.x;
+            CGFloat deltaY = finalCenter.y - parent.view.center.y;
+            
+            [self willPIPBecomeActivationViewController:parent];
+            
+            CATransition *transition = [CATransition animation];
+            transition.duration = _pipAnimationDuration / 2.0;
+            transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            transition.type = kCATransitionFade;
+            [_mainParent.navigationController.view.layer addAnimation:transition forKey:nil];
+            [_mainParent.navigationController popViewControllerAnimated:YES];
+
+            [UIView animateWithDuration:_pipAnimationDuration
+                                  delay:0
+                                options:UIViewAnimationOptionCurveEaseInOut
+                             animations:^(void){
+                                 parent.view.transform = CGAffineTransformMake(scaleX, 0.0f, 0.0f, scaleY, deltaX, deltaY);
+                             }
+                             completion:^(BOOL finished) {
+                                 
+                                 _isPIPActive = YES;
+
+                                 CGRect frame = parent.view.frame;
+                                 parent.view.transform = CGAffineTransformIdentity;
+                                 parent.view.frame = frame;
+                                 
+                                 if (_isFullscreen)
+                                 {
+                                     [self willNormalScreenModeToParentViewController:parent];
+                                     [UIView animateWithDuration:_pipAnimationDuration / 2.0 animations:^{
+                                         _window.layer.backgroundColor = [UIColor clearColor].CGColor;
+                                     } completion:^(BOOL finished) {
+                                         [parent.view removeFromSuperview];
+                                         _window.rootViewController = nil;
+                                         
+                                         [_mainWindow addSubview:parent.view];
+                                         [_mainWindow makeKeyAndVisible];
+                                         
+                                         _fullscreenButton.transform = CGAffineTransformIdentity;
+                                         _isFullscreen = NO;
+                                         _window = nil;
+                                         
+                                         [self didNormalScreenModeToParentViewController:parent];
+                                     }];
+                                 }
+                                 
+                                 [self didPIPBecomeActivationViewController:parent];
+                             }];
+        }];
+    }
+}
+
+- (void)deactivatePIP
+{
+    UIViewController *parent = self.parentViewController; // AVPlayerViewController
+
+    [self willPIPDeactivationViewController:parent];
+    
+    CATransition *transition = [CATransition animation];
+    transition.duration = _pipAnimationDuration / 2.0;
+    transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    transition.type = kCATransitionFade;
+    [_navController.view.layer addAnimation:transition forKey:nil];
+    [_navController pushViewController:_mainParent animated:YES];
+    
+    [UIView animateKeyframesWithDuration:_pipAnimationDuration
+                                   delay:0
+                                 options:UIViewKeyframeAnimationOptionLayoutSubviews
+                              animations:^{
+                                   parent.view.frame = _currentFrame;
+                              } completion:^(BOOL finished) {
+                                  
+                                  [parent.view removeFromSuperview];
+                                  
+                                  [_mainParent addChildViewController:parent];
+                                  [_containerView addSubview:parent.view];
+                                  parent.view.frame = _originalFrame;
+                                  [parent didMoveToParentViewController:_mainParent];
+                                  
+                                  self.view.alpha = 1.0;
+                                  self.view.hidden = NO;
+                                  [self showPlayerBar];
+                                  
+                                  _isPIPActive = NO;
+                                  
+                                  _navController = nil;
+                                  _containerView = nil;
+                                  _mainParent = nil;
+                                  
+                                  [self didPIPDeactivationViewController:parent];
+                              }];
 }
 
 #pragma mark - Device rotation

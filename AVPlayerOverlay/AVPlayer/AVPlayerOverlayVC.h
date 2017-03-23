@@ -4,17 +4,24 @@
 //  Created by Danilo Priore on 28/04/16.
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
-#define AVPlayerOverlayVCFullScreenNotification             @"AVPlayerOverlayVCFullScreen"
-#define AVPlayerOverlayVCNormalScreenNotification           @"AVPlayerOverlayVCNormalScreen"
+#define AVPlayerOverlayVCWillFullScreenNotification         @"AVPlayerOverlayVCWillFullScreen"
+#define AVPlayerOverlayVCDidFullScreenNotification          @"AVPlayerOverlayVCDidFullScreen"
+#define AVPlayerOverlayVCWillNormalScreenNotification       @"AVPlayerOverlayVCWillNormalScreen"
+#define AVPlayerOverlayVCDidNormalScreenNotification        @"AVPlayerOverlayVCDidNormalScreen"
 #define AVPlayerOverlayVCAirPlayInUseNotification           @"AVPlayerOverlayVCAirPlayInUse"
 #define AVPlayerOverlayVCAirPlayBecomePresentNotification   @"AVPlayerOverlayVCAirPlayBecomePresent"
 #define AVPlayerOverlayVCAirPlayResignPresentNotification   @"AVPlayerOverlayVCAirPlayResignPresent"
+#define AVPlayerOverlayVCPIPWillBecomeActiveNotification    @"AVPlayerOverlayVCPIPWillBecomeActive"
+#define AVPlayerOverlayVCPIPDidBecomeActiveNotification     @"AVPlayerOverlayVCPIPDidBecomeActive"
+#define AVPlayerOverlayVCPIPWillDeactivationNotification    @"AVPlayerOverlayVCPIPWillDeactivation"
+#define AVPlayerOverlayVCPIPDidDeactivationNotification     @"AVPlayerOverlayVCPIPDidDeactivation"
 
 #define kAVPlayerOverlayVCAirPlayInUse  @"airPlayInUse"
 
 @import UIKit;
 
 @class AVPlayer;
+@protocol AVPlayerOverlayVCDelegate;
 
 typedef NS_ENUM(NSInteger, AVPlayerFullscreenAutorotaionMode)
 {
@@ -32,6 +39,7 @@ IB_DESIGNABLE
 @property (nonatomic, weak) IBOutlet UIButton *fullscreenButton;
 @property (nonatomic, weak) IBOutlet UIButton *airPlayButton;
 @property (nonatomic, weak) IBOutlet UIButton *subtitlesButton;
+@property (nonatomic, weak) IBOutlet UIButton *pipButton;
 @property (nonatomic, weak) IBOutlet UISlider *videoSlider;
 @property (nonatomic, weak) IBOutlet UISlider *volumeSlider;
 @property (nonatomic, weak) IBOutlet UILabel *subtitlesLabel;
@@ -40,14 +48,26 @@ IB_DESIGNABLE
 
 @property (nonatomic, weak) AVPlayer *player;
 
+@property (nonatomic, assign) IBInspectable CGSize pipSize;
+@property (nonatomic, assign) IBInspectable CGFloat pipPadding;
+@property (nonatomic, assign) IBInspectable CGFloat pipAnimationDuration;
+
+@property (nonatomic, assign) IBInspectable CGFloat barAnimationDuration;
+@property (nonatomic, assign) IBInspectable CGFloat volumeAnimationDuration;
+@property (nonatomic, assign) IBInspectable CGFloat fullscreenAnimtationDuration;
+@property (nonatomic, assign) IBInspectable CGFloat subtitlesAnimtationDuration;
+
 @property (nonatomic, assign) IBInspectable NSTimeInterval playBarAutoideInterval;
 @property (nonatomic, assign) IBInspectable AVPlayerFullscreenAutorotaionMode autorotationMode;
 
 @property (nonatomic, assign, readonly) BOOL isFullscreen;
 @property (nonatomic, assign, readonly) BOOL isAirplayInUse;
 @property (nonatomic, assign, readonly) BOOL isAirplayPresent;
+@property (nonatomic, assign, readonly) BOOL isPIPActive;
 
 @property (nonatomic, strong, readonly) NSString *airPlayPlayerName;
+
+@property (nonatomic, assign) id<AVPlayerOverlayVCDelegate> delegate;
 
 - (void)updateProgressBar;
 
@@ -62,6 +82,7 @@ IB_DESIGNABLE
 - (void)didVolumeButtonSelected:(id)sender;
 - (void)didFullscreenButtonSelected:(id)sender;
 - (void)didSubtitlesButtonSelected:(id)sender;
+- (void)didPIPButtonSelected:(id)sender;
 
 - (void)didVolumeSliderValueChanged:(id)sender;
 
@@ -69,10 +90,15 @@ IB_DESIGNABLE
 - (void)didVideoSliderTouchDown:(id)sender;
 - (void)videoSliderEnabled:(BOOL)enabled;
 
+// Overridable Methods
 - (void)willFullScreenModeFromParentViewController:(UIViewController*)parent;
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent;
 - (void)willNormalScreenModeToParentViewController:(UIViewController*)parent;
 - (void)didNormalScreenModeToParentViewController:(UIViewController*)parent;
+- (void)willPIPBecomeActivationViewController:(UIViewController*)parent;
+- (void)didPIPBecomeActivationViewController:(UIViewController*)parent;
+- (void)willPIPDeactivationViewController:(UIViewController*)parent;
+- (void)didPIPDeactivationViewController:(UIViewController*)parent;
 
 - (void)showSubtitles;
 - (void)hideSubtitles;
@@ -85,11 +111,35 @@ IB_DESIGNABLE
 - (void)airPlayRouteChange:(NSNotification*)note;
 - (BOOL)checkAirPlayIsRunning;
 - (void)airPlayChangeInUseState:(BOOL)isInUse;
+- (void)checkAirPlayRoutingViewVisible;
+- (BOOL)isAirPlayRoutingInView:(UIView*)view;
 
 - (void)airplayBecomePresent;
 - (void)airplayResignPresent;
+
+- (void)activatePIP;
+- (void)deactivatePIP;
 
 - (void)forceDeviceOrientation:(UIInterfaceOrientation)orientation;
 - (void)deviceOrientationDidChange:(NSNotification *)notification;
 
 @end
+
+@protocol  AVPlayerOverlayVCDelegate <NSObject>
+
+@optional
+
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController willFullScreen:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController didFullScreen:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController willNormalScreen:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController didNormalScreen:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController airPlayInUse:(BOOL)inUse;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController airPlayBecomePresent:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController airPlayResignPresent:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController willPIPBecomeActive:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController didPIPBecomeActive:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController willPIPDeactivation:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController didPIPDeactivation:(id)sender;
+
+@end
+

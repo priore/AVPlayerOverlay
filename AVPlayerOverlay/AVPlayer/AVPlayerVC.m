@@ -11,6 +11,10 @@
 @import CoreMedia;
 @import AVFoundation;
 
+@interface AVPlayerVC ()
+
+@end
+
 @implementation AVPlayerVC
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
@@ -18,6 +22,7 @@
     if (self = [super initWithCoder:aDecoder]) {
         
         _videoBackground = NO;
+        _PIPStoryboardId = @"AVPlayerPIPOverlayVC";
         _overlayStoryboardId = @"AVPlayerOverlayVC";
     }
     
@@ -51,11 +56,23 @@
                                                  name:AVPlayerVCSetVideoURLNotification
                                                object:nil];
 
-    _overlayVC = [self.storyboard instantiateViewControllerWithIdentifier:_overlayStoryboardId];
+    if (_overlayStoryboardId.length > 0)
+    {
+        _overlayVC = [self.storyboard instantiateViewControllerWithIdentifier:_overlayStoryboardId];
+        
+        [self addChildViewController:_overlayVC];
+        [self.view addSubview:_overlayVC.view];
+        [_overlayVC didMoveToParentViewController:self];
+    }
     
-    [self addChildViewController:_overlayVC];
-    [self.view addSubview:_overlayVC.view];
-    [_overlayVC didMoveToParentViewController:self];
+    if (_PIPStoryboardId.length > 0)
+    {
+        _pipOverlayVC = [self.storyboard instantiateViewControllerWithIdentifier:_PIPStoryboardId];
+        
+        [self addChildViewController:_pipOverlayVC];
+        [self.view addSubview:_pipOverlayVC.view];
+        [_pipOverlayVC didMoveToParentViewController:self];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -81,6 +98,7 @@
     [super viewDidLayoutSubviews];
     
     _overlayVC.view.frame = self.view.bounds;
+    _pipOverlayVC.view.frame = self.view.bounds;
 }
 
 - (BOOL)canBecomeFirstResponder
@@ -93,6 +111,7 @@
     [super setPlayer:player];
     
     _overlayVC.player = self.player;
+    _pipOverlayVC.player = self.player;
 }
 
 - (void)setVideoURL:(NSURL *)videoURL
@@ -149,7 +168,8 @@
 
 - (void)dealloc
 {
-    _overlayVC = nil;
+    [_overlayVC removeFromParentViewController], _overlayVC = nil;
+    [_pipOverlayVC removeFromParentViewController], _pipOverlayVC = nil;
     
     [self.player pause], self.player = nil;
     
