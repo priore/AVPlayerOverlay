@@ -16,6 +16,7 @@ IB_DESIGNABLE
 @interface AVPlayerVC : AVPlayerViewController
 
 @property (nonatomic, strong) NSURL *videoURL;
+@property (nonatomic, strong) NSURL *subtitlesURL;
 @property (nonatomic, strong) AVPlayerOverlayVC *overlayVC;
 @property (nonatomic, strong) AVPlayerPIPOverlayVC *pipOverlayVC;
 

@@ -52,9 +52,10 @@
 {
     NSDictionary *dict = channels[indexPath.row];
     NSURL *videoURL = [NSURL URLWithString:dict[@"URL"]];
+    NSURL *subtitlesURL = [NSURL URLWithString:dict[@"Subtitles"]];
     
-    NSURL *srtURL = [NSURL URLWithString:dict[@"Subtitles"]];
-    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCSetVideoURLNotification object:videoURL userInfo:srtURL ? @{kAVPlayerVCSubtitleURL: srtURL} : nil];
+    if ([_delegate respondsToSelector:@selector(channeiList:selectedVideoURL:subtitlesURL:)])
+        [_delegate channeiList:self selectedVideoURL:videoURL subtitlesURL:subtitlesURL];
 }
 
 @end

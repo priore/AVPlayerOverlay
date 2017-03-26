@@ -7,11 +7,13 @@
 //
 
 #import "ViewController.h"
+#import "TableViewController.h"
 #import "AVPlayerVC.h"
 
-@interface ViewController () <AVPlayerOverlayVCDelegate>
+@interface ViewController () <AVPlayerOverlayVCDelegate, ChannelListDelegate>
 
 @property (nonatomic, weak) AVPlayerVC *playerVC;
+@property (nonatomic, weak) TableViewController *tableViewController;
 
 @end
 
@@ -22,6 +24,7 @@
     [super viewDidLoad];
     
     _playerVC.overlayVC.delegate = self;
+    _tableViewController.delegate = self;
     
 }
 
@@ -29,6 +32,8 @@
 {
     if ([segue.destinationViewController isKindOfClass:[AVPlayerVC class]]) {
         _playerVC = segue.destinationViewController;
+    } else if ([segue.destinationViewController isKindOfClass:[TableViewController class]]) {
+        _tableViewController = segue.destinationViewController;
     }
 }
 
@@ -36,6 +41,14 @@
 {
     _playerVC.overlayVC.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - ChannelList Delegate
+
+- (void)channeiList:(UIViewController *)viewController selectedVideoURL:(NSURL *)videoURL subtitlesURL:(NSURL *)subtitlesURL
+{
+    _playerVC.videoURL = videoURL;
+    _playerVC.subtitlesURL = subtitlesURL;
 }
 
 #pragma mark - AVPlayerOverlayVC Delegate

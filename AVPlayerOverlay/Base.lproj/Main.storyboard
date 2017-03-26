@@ -157,6 +157,7 @@
                 <avPlayerViewController videoGravity="AVLayerVideoGravityResizeAspect" id="q5b-ax-Max" customClass="AVPlayerVC" sceneMemberID="viewController">
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="string" keyPath="overlayStoryboardId" value="AVPlayerOverlayVC"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="PIPStoryboardId" value="AVPlayerPIPOverlayVC"/>
                     </userDefinedRuntimeAttributes>
                 </avPlayerViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vlZ-9a-r6H" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -450,7 +451,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qiD-Sd-4hR" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1168" y="855"/>
+            <point key="canvasLocation" x="1112" y="855"/>
         </scene>
     </scenes>
     <resources>

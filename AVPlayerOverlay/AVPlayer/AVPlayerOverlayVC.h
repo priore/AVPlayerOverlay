@@ -11,12 +11,14 @@
 #define AVPlayerOverlayVCAirPlayInUseNotification           @"AVPlayerOverlayVCAirPlayInUse"
 #define AVPlayerOverlayVCAirPlayBecomePresentNotification   @"AVPlayerOverlayVCAirPlayBecomePresent"
 #define AVPlayerOverlayVCAirPlayResignPresentNotification   @"AVPlayerOverlayVCAirPlayResignPresent"
-#define AVPlayerOverlayVCPIPWillBecomeActiveNotification    @"AVPlayerOverlayVCPIPWillBecomeActive"
-#define AVPlayerOverlayVCPIPDidBecomeActiveNotification     @"AVPlayerOverlayVCPIPDidBecomeActive"
-#define AVPlayerOverlayVCPIPWillDeactivationNotification    @"AVPlayerOverlayVCPIPWillDeactivation"
-#define AVPlayerOverlayVCPIPDidDeactivationNotification     @"AVPlayerOverlayVCPIPDidDeactivation"
+#define AVPlayerOverlayVCWillPIPBecomeActiveNotification    @"AVPlayerOverlayVCWillPIPBecomeActive"
+#define AVPlayerOverlayVCDidPIPBecomeActiveNotification     @"AVPlayerOverlayVCDidPIPBecomeActive"
+#define AVPlayerOverlayVCWillPIPDeactivationNotification    @"AVPlayerOverlayVCWillPIPDeactivation"
+#define AVPlayerOverlayVCDidPIPDeactivationNotification     @"AVPlayerOverlayVCDidPIPDeactivation"
 
 #define kAVPlayerOverlayVCAirPlayInUse  @"airPlayInUse"
+
+#import "AVPlayerOverlayViewCntroller.h"
 
 @import UIKit;
 
@@ -30,7 +32,7 @@ typedef NS_ENUM(NSInteger, AVPlayerFullscreenAutorotaionMode)
 };
 
 IB_DESIGNABLE
-@interface AVPlayerOverlayVC : UIViewController
+@interface AVPlayerOverlayVC : AVPlayerOverlayViewCntroller
 
 @property (nonatomic, weak) IBOutlet UIView *playerBarView;
 @property (nonatomic, weak) IBOutlet UIButton *playButton;
@@ -63,7 +65,6 @@ IB_DESIGNABLE
 @property (nonatomic, assign, readonly) BOOL isFullscreen;
 @property (nonatomic, assign, readonly) BOOL isAirplayInUse;
 @property (nonatomic, assign, readonly) BOOL isAirplayPresent;
-@property (nonatomic, assign, readonly) BOOL isPIPActive;
 
 @property (nonatomic, strong, readonly) NSString *airPlayPlayerName;
 
@@ -117,8 +118,12 @@ IB_DESIGNABLE
 - (void)airplayBecomePresent;
 - (void)airplayResignPresent;
 
-- (void)activatePIP;
-- (void)deactivatePIP;
+- (void)pipActivate;
+- (void)pipDeactivate;
+- (void)pipClosed;
+
+- (void)showMainParentBeforePIPDeactivation;
+- (void)hideMainParentBeforePIPActivation;
 
 - (void)forceDeviceOrientation:(UIInterfaceOrientation)orientation;
 - (void)deviceOrientationDidChange:(NSNotification *)notification;

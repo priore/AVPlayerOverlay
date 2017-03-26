@@ -19,6 +19,8 @@
 		9F16AFFE1CD3E3980082CC15 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F16AFFC1CD3E3980082CC15 /* LaunchScreen.storyboard */; };
 		9F16B0171CD40E340082CC15 /* TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F16B0161CD40E340082CC15 /* TableViewController.m */; };
 		9F16B0191CD40EC10082CC15 /* Channels.plist in Resources */ = {isa = PBXBuildFile; fileRef = 9F16B0181CD40EC10082CC15 /* Channels.plist */; };
+		9FBCFAEB1E88752500C3AEB4 /* AVPlayerOverlayViewCntroller.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FBCFAEA1E88752500C3AEB4 /* AVPlayerOverlayViewCntroller.m */; };
+		9FBCFAEE1E8876CF00C3AEB4 /* AVPlayerOverlayAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FBCFAED1E8876CF00C3AEB4 /* AVPlayerOverlayAction.m */; };
 		B3CF17E5ADEBFC417C9440DF /* libPods-AVPlayerOverlay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D6675FC9D4AE2D6849A4B94 /* libPods-AVPlayerOverlay.a */; };
 /* End PBXBuildFile section */
 
@@ -50,6 +52,10 @@
 		9F72195E1CE60BDD00948B8B /* AVPlayerOverlay.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = AVPlayerOverlay.podspec; path = ../AVPlayerOverlay.podspec; sourceTree = "<group>"; };
 		9F72195F1CE60BDD00948B8B /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		9F7219601CE60BDD00948B8B /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		9FBCFAE91E88752500C3AEB4 /* AVPlayerOverlayViewCntroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerOverlayViewCntroller.h; sourceTree = "<group>"; };
+		9FBCFAEA1E88752500C3AEB4 /* AVPlayerOverlayViewCntroller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerOverlayViewCntroller.m; sourceTree = "<group>"; };
+		9FBCFAEC1E8876CF00C3AEB4 /* AVPlayerOverlayAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerOverlayAction.h; sourceTree = "<group>"; };
+		9FBCFAED1E8876CF00C3AEB4 /* AVPlayerOverlayAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerOverlayAction.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +88,10 @@
 				9F1056651E82D19800AAF9F2 /* AVPlayerOverlayVC.m */,
 				9F10566D1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.h */,
 				9F10566E1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.m */,
+				9FBCFAE91E88752500C3AEB4 /* AVPlayerOverlayViewCntroller.h */,
+				9FBCFAEA1E88752500C3AEB4 /* AVPlayerOverlayViewCntroller.m */,
+				9FBCFAEC1E8876CF00C3AEB4 /* AVPlayerOverlayAction.h */,
+				9FBCFAED1E8876CF00C3AEB4 /* AVPlayerOverlayAction.m */,
 				9F1056681E82D19800AAF9F2 /* SubtitlePackage.h */,
 				9F1056691E82D19800AAF9F2 /* SubtitlePackage.m */,
 			);
@@ -270,11 +280,13 @@
 			files = (
 				9F16AFF61CD3E3980082CC15 /* ViewController.m in Sources */,
 				9F10566F1E82E24B00AAF9F2 /* AVPlayerPIPOverlayVC.m in Sources */,
+				9FBCFAEE1E8876CF00C3AEB4 /* AVPlayerOverlayAction.m in Sources */,
 				9F16B0171CD40E340082CC15 /* TableViewController.m in Sources */,
 				9F10566B1E82D19800AAF9F2 /* AVPlayerVC.m in Sources */,
 				9F16AFF31CD3E3980082CC15 /* AppDelegate.m in Sources */,
 				9F16AFF01CD3E3980082CC15 /* main.m in Sources */,
 				9F10566C1E82D19800AAF9F2 /* SubtitlePackage.m in Sources */,
+				9FBCFAEB1E88752500C3AEB4 /* AVPlayerOverlayViewCntroller.m in Sources */,
 				9F10566A1E82D19800AAF9F2 /* AVPlayerOverlayVC.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

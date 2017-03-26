@@ -130,8 +130,6 @@ static void *AirPlayContext = &AirPlayContext;
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deactivatePIP) name:AVPlayerPIPOverlayVCwillPIPDeactivationNotification object:nil];
-    
     [self.view layoutIfNeeded];
     [self autoHidePlayerBar];
     
@@ -139,8 +137,6 @@ static void *AirPlayContext = &AirPlayContext;
 
 - (void)dealloc
 {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-
     if (_timeObserver)
         [_player removeTimeObserver:_timeObserver];
     _timeObserver = nil;
@@ -149,6 +145,7 @@ static void *AirPlayContext = &AirPlayContext;
 
     _volume = nil;
     _player = nil;
+    _delegate = nil;
     
     _navController = nil;
     _containerView = nil;
@@ -446,7 +443,7 @@ static void *AirPlayContext = &AirPlayContext;
                                       [self didFullScreenModeFromParentViewController:parent];
                                   }];
         
-    } else {
+    } else if (parent) {
         
         [self willNormalScreenModeToParentViewController:parent];
         
@@ -500,7 +497,7 @@ static void *AirPlayContext = &AirPlayContext;
 
 - (void)didPIPButtonSelected:(id)sender
 {
-    [self activatePIP];
+    [self pipActivate];
 }
 
 #pragma mark - Overridable Methods
@@ -509,6 +506,8 @@ static void *AirPlayContext = &AirPlayContext;
 {
     _hiddenNavBar = self.navigationController.isNavigationBarHidden;
     _hiddenStatusBar = [UIApplication sharedApplication].isStatusBarHidden;
+    
+    [self sendActionsForEvent:AVPlayerOverlayEventWillFullScreenMode];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillFullScreenNotification object:self];
     
@@ -534,6 +533,8 @@ static void *AirPlayContext = &AirPlayContext;
         [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     }
 
+    [self sendActionsForEvent:AVPlayerOverlayEventDidFullScreenMode];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidFullScreenNotification object:self];
     
     if ([_delegate respondsToSelector:@selector(avPlayerOverlay:didFullScreen:)])
@@ -548,6 +549,8 @@ static void *AirPlayContext = &AirPlayContext;
     [[UIApplication sharedApplication] setStatusBarHidden:_hiddenStatusBar withAnimation:UIStatusBarAnimationFade];
     [self.navigationController setNavigationBarHidden:_hiddenNavBar animated:YES];
 
+    [self sendActionsForEvent:AVPlayerOverlayEventWillNormalScreenMode];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillNormalScreenNotification object:self];
     
     if ([_delegate respondsToSelector:@selector(avPlayerOverlay:willNormalScreen:)])
@@ -559,6 +562,8 @@ static void *AirPlayContext = &AirPlayContext;
     if (_autorotationMode == AVPlayerFullscreenAutorotationLandscapeMode)
         [self forceDeviceOrientation:UIInterfaceOrientationPortrait];
     
+    [self sendActionsForEvent:AVPlayerOverlayEventDidNormalScreenMode];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidNormalScreenNotification object:self];
     
     if ([_delegate respondsToSelector:@selector(avPlayerOverlay:didNormalScreen:)])
@@ -567,7 +572,9 @@ static void *AirPlayContext = &AirPlayContext;
 
 - (void)willPIPBecomeActivationViewController:(UIViewController*)parent
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCPIPWillBecomeActiveNotification object:self];
+    [self sendActionsForEvent:AVPlayerOverlayEventWillPIPBecomeActive];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillPIPBecomeActiveNotification object:self];
     
     if ([_delegate respondsToSelector:@selector(avPlayerOverlay:willPIPBecomeActive:)])
         [_delegate avPlayerOverlay:self willPIPBecomeActive:parent];
@@ -575,8 +582,9 @@ static void *AirPlayContext = &AirPlayContext;
 
 - (void)didPIPBecomeActivationViewController:(UIViewController*)parent
 {
+    [self sendActionsForEvent:AVPlayerOverlayEventDidPIPBecomeActive];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCPIPDidBecomeActiveNotification object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidPIPBecomeActiveNotification object:self];
     
     if ([_delegate respondsToSelector:@selector(avPlayerOverlay:didPIPBecomeActive:)])
         [_delegate avPlayerOverlay:self didPIPBecomeActive:parent];
@@ -584,7 +592,9 @@ static void *AirPlayContext = &AirPlayContext;
 
 - (void)willPIPDeactivationViewController:(UIViewController*)parent
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCPIPWillDeactivationNotification object:self];
+    [self sendActionsForEvent:AVPlayerOverlayEventWillPIPDeactivation];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillPIPDeactivationNotification object:self];
     
     if ([_delegate respondsToSelector:@selector(avPlayerOverlay:willPIPDeactivation:)])
         [_delegate avPlayerOverlay:self willPIPDeactivation:parent];
@@ -592,7 +602,9 @@ static void *AirPlayContext = &AirPlayContext;
 
 - (void)didPIPDeactivationViewController:(UIViewController*)parent
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCPIPDidDeactivationNotification object:self];
+    [self sendActionsForEvent:AVPlayerOverlayEventDidPIPDeactivation];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidPIPDeactivationNotification object:self];
     
     if ([_delegate respondsToSelector:@selector(avPlayerOverlay:didPIPDeactivation:)])
         [_delegate avPlayerOverlay:self didPIPDeactivation:parent];
@@ -822,6 +834,7 @@ static void *AirPlayContext = &AirPlayContext;
         }
         
         [self showPlayerBar];
+        [self sendActionsForEvent:AVPlayerOverlayEventAirPlayInUse];
 
         [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCAirPlayInUseNotification
                                                             object:self
@@ -870,6 +883,9 @@ static void *AirPlayContext = &AirPlayContext;
 - (void)airplayBecomePresent
 {
     _airPlayButton.enabled = YES;
+    
+    [self sendActionsForEvent:AVPlayerOverlayEventAirPlayBecomePresent];
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCAirPlayBecomePresentNotification object:self];
     
     if ([_delegate respondsToSelector:@selector(avPlayerOverlay:airPlayBecomePresent:)])
@@ -879,6 +895,9 @@ static void *AirPlayContext = &AirPlayContext;
 - (void)airplayResignPresent
 {
     _airPlayButton.enabled = NO;
+    
+    [self sendActionsForEvent:AVPlayerOverlayEventAirPlayResignPresent];
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCAirPlayResignPresentNotification object:self];
     
     if ([_delegate respondsToSelector:@selector(avPlayerOverlay:airPlayResignPresent:)])
@@ -887,9 +906,9 @@ static void *AirPlayContext = &AirPlayContext;
 
 #pragma mark - PIP
 
-- (void)activatePIP
+- (void)pipActivate
 {
-    if (!_isPIPActive)
+    if (_pipButton.enabled)
     {
         [UIView animateWithDuration:_pipAnimationDuration / 4.0 animations:^{
             self.view.alpha = 0.0;
@@ -933,13 +952,7 @@ static void *AirPlayContext = &AirPlayContext;
             CGFloat deltaY = finalCenter.y - parent.view.center.y;
             
             [self willPIPBecomeActivationViewController:parent];
-            
-            CATransition *transition = [CATransition animation];
-            transition.duration = _pipAnimationDuration / 2.0;
-            transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-            transition.type = kCATransitionFade;
-            [_mainParent.navigationController.view.layer addAnimation:transition forKey:nil];
-            [_mainParent.navigationController popViewControllerAnimated:YES];
+            [self hideMainParentBeforePIPActivation];
 
             [UIView animateWithDuration:_pipAnimationDuration
                                   delay:0
@@ -949,8 +962,6 @@ static void *AirPlayContext = &AirPlayContext;
                              }
                              completion:^(BOOL finished) {
                                  
-                                 _isPIPActive = YES;
-
                                  CGRect frame = parent.view.frame;
                                  parent.view.transform = CGAffineTransformIdentity;
                                  parent.view.frame = frame;
@@ -981,45 +992,70 @@ static void *AirPlayContext = &AirPlayContext;
     }
 }
 
-- (void)deactivatePIP
+- (void)pipDeactivate
 {
     UIViewController *parent = self.parentViewController; // AVPlayerViewController
 
-    [self willPIPDeactivationViewController:parent];
-    
+    if (parent)
+    {
+        
+        [self willPIPDeactivationViewController:parent];
+        [self showMainParentBeforePIPDeactivation];
+        
+        [UIView animateKeyframesWithDuration:_pipAnimationDuration
+                                       delay:0
+                                     options:UIViewKeyframeAnimationOptionLayoutSubviews
+                                  animations:^{
+                                      parent.view.frame = _currentFrame;
+                                  } completion:^(BOOL finished) {
+                                      
+                                      [parent.view removeFromSuperview];
+                                      
+                                      [_mainParent addChildViewController:parent];
+                                      [_containerView addSubview:parent.view];
+                                      parent.view.frame = _originalFrame;
+                                      [parent didMoveToParentViewController:_mainParent];
+                                      
+                                      self.view.alpha = 1.0;
+                                      self.view.hidden = NO;
+                                      [self showPlayerBar];
+                                      
+                                      _navController = nil;
+                                      _containerView = nil;
+                                      _mainParent = nil;
+                                      
+                                      [self didPIPDeactivationViewController:parent];
+                                  }];
+    }
+}
+
+- (void)pipClosed
+{
+    _pipButton.enabled = YES;
+}
+
+- (void)showMainParentBeforePIPDeactivation
+{
+    if (![_navController.viewControllers isEqual:_mainParent])
+    {
+        CATransition *transition = [CATransition animation];
+        transition.duration = _pipAnimationDuration / 2.0;
+        transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        transition.type = kCATransitionFade;
+        [_navController.view.layer addAnimation:transition forKey:nil];
+        [_navController pushViewController:_mainParent animated:YES];
+    }
+}
+
+- (void)hideMainParentBeforePIPActivation
+{
+    // remove container viewcontroller
     CATransition *transition = [CATransition animation];
     transition.duration = _pipAnimationDuration / 2.0;
     transition.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
     transition.type = kCATransitionFade;
-    [_navController.view.layer addAnimation:transition forKey:nil];
-    [_navController pushViewController:_mainParent animated:YES];
-    
-    [UIView animateKeyframesWithDuration:_pipAnimationDuration
-                                   delay:0
-                                 options:UIViewKeyframeAnimationOptionLayoutSubviews
-                              animations:^{
-                                   parent.view.frame = _currentFrame;
-                              } completion:^(BOOL finished) {
-                                  
-                                  [parent.view removeFromSuperview];
-                                  
-                                  [_mainParent addChildViewController:parent];
-                                  [_containerView addSubview:parent.view];
-                                  parent.view.frame = _originalFrame;
-                                  [parent didMoveToParentViewController:_mainParent];
-                                  
-                                  self.view.alpha = 1.0;
-                                  self.view.hidden = NO;
-                                  [self showPlayerBar];
-                                  
-                                  _isPIPActive = NO;
-                                  
-                                  _navController = nil;
-                                  _containerView = nil;
-                                  _mainParent = nil;
-                                  
-                                  [self didPIPDeactivationViewController:parent];
-                              }];
+    [_mainParent.navigationController.view.layer addAnimation:transition forKey:nil];
+    [_mainParent.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma mark - Device rotation

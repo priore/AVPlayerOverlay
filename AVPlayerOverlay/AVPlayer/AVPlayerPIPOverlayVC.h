@@ -5,14 +5,14 @@
 //  Created by Danilo Priore on 22/03/17.
 //  Copyright © 2017 Danilo Priore. All rights reserved.
 //
-#define AVPlayerPIPOverlayVCwillPIPDeactivationNotification @"AVPlayerPIPOverlayVCwillPIPDeactivation"
 
-#import <UIKit/UIKit.h>
+#import "AVPlayerOverlayViewCntroller.h"
 
 @class AVPlayer;
+@protocol AVPlayerPIPOverlayVCDelegate;
 
 IB_DESIGNABLE
-@interface AVPlayerPIPOverlayVC : UIViewController
+@interface AVPlayerPIPOverlayVC : AVPlayerOverlayViewCntroller
 
 @property (nonatomic, weak) IBOutlet UIView *playerBarView;
 @property (nonatomic, weak) IBOutlet UIButton *playButton;
@@ -23,11 +23,20 @@ IB_DESIGNABLE
 
 @property (nonatomic, weak) AVPlayer *player;
 
+@property (nonatomic, assign) id<AVPlayerPIPOverlayVCDelegate> delegate;
+
 - (void)didPlayButtonSelected:(id)sender;
 - (void)didRestoreButtonSelected:(id)sender;
 - (void)didCloseButtonSelected:(id)sender;
 
-- (void)didPipBecomeActiveNotification:(NSNotification*)note;
-- (void)willPipDeactivationNotification:(NSNotification*)note;
+- (void)showControls;
+- (void)hideControls;
+
+@end
+
+@protocol AVPlayerPIPOverlayVCDelegate <NSObject>
+
+- (void)pipOverlayViewController:(UIViewController*)viewController willPIPClosed:(id)sender;
+- (void)pipOverlayViewController:(UIViewController*)viewController willPIPDeactivation:(id)sender;
 
 @end

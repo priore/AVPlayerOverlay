@@ -44,18 +44,12 @@
     UITapGestureRecognizer *doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didRestoreButtonSelected:)];
     doubleTapGesture.numberOfTapsRequired = 2;
     [self.view addGestureRecognizer:doubleTapGesture];
-    
-    // PIP active/deactive notifications
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didPipBecomeActiveNotification:) name:AVPlayerOverlayVCPIPDidBecomeActiveNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willPipDeactivationNotification:) name:AVPlayerOverlayVCPIPWillDeactivationNotification object:nil];
-    
 }
 
 - (void)dealloc
 {
     _player = nil;
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    _delegate = nil;
 }
 
 #pragma mark - Actions
@@ -79,7 +73,10 @@
 
 - (void)didRestoreButtonSelected:(id)sender
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerPIPOverlayVCwillPIPDeactivationNotification object:self];
+    [self sendActionsForEvent:AVPlayerOverlayEventPIPDeactivationRequest];
+
+    if ([_delegate respondsToSelector:@selector(pipOverlayViewController:willPIPDeactivation:)])
+        [_delegate pipOverlayViewController:self willPIPDeactivation:self.parentViewController];
 }
 
 - (void)didCloseButtonSelected:(id)sender
@@ -88,14 +85,19 @@
     [UIView animateWithDuration:_animationDuration animations:^{
         parent.view.alpha = 0.0;
     } completion:^(BOOL finished) {
-        // release memory
-        [parent.view removeFromSuperview], parent = nil;
+        
+        [self sendActionsForEvent:AVPlayerOverlayEventPIPClosed];
+        
+        if ([_delegate respondsToSelector:@selector(pipOverlayViewController:willPIPClosed:)])
+            [_delegate pipOverlayViewController:self willPIPClosed:self.parentViewController];
+        
+        [parent.view removeFromSuperview], parent = nil; // release memory
     }];
 }
 
-#pragma mark - Notifications
+#pragma mark - Events
 
-- (void)didPipBecomeActiveNotification:(NSNotification*)note
+- (void)showControls
 {
     // show controls
     self.view.hidden = NO;
@@ -104,7 +106,7 @@
     }];
 }
 
-- (void)willPipDeactivationNotification:(NSNotification*)note
+- (void)hideControls
 {
     // hide controls
     [UIView animateWithDuration:_animationDuration animations:^{

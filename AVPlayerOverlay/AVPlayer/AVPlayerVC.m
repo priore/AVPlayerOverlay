@@ -17,6 +17,8 @@
 
 @implementation AVPlayerVC
 
+__strong static id _deallocDisabled; // used in PIP mode
+
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
     if (self = [super initWithCoder:aDecoder]) {
@@ -59,19 +61,32 @@
     if (_overlayStoryboardId.length > 0)
     {
         _overlayVC = [self.storyboard instantiateViewControllerWithIdentifier:_overlayStoryboardId];
+        [_overlayVC loadSubtitlesWithURL:_subtitlesURL];
         
         [self addChildViewController:_overlayVC];
         [self.view addSubview:_overlayVC.view];
         [_overlayVC didMoveToParentViewController:self];
+        
+        [_overlayVC addTarget:self action:@selector(disableDealloc) forEvents:AVPlayerOverlayEventDidPIPBecomeActive];
+        [_overlayVC addTarget:self action:@selector(enableDealloc) forEvents:AVPlayerOverlayEventDidPIPDeactivation];
+        
+        _overlayVC.pipButton.enabled = (_deallocDisabled == nil); // enable/disable PIP button
     }
     
     if (_PIPStoryboardId.length > 0)
     {
         _pipOverlayVC = [self.storyboard instantiateViewControllerWithIdentifier:_PIPStoryboardId];
         
+        [_pipOverlayVC addTarget:_overlayVC action:@selector(pipClosed) forEvents:AVPlayerOverlayEventPIPClosed];
+        [_pipOverlayVC addTarget:self action:@selector(enableDealloc) forEvents:AVPlayerOverlayEventPIPClosed];
+        [_pipOverlayVC addTarget:_overlayVC action:@selector(pipDeactivate) forEvents:AVPlayerOverlayEventPIPDeactivationRequest];
+        
         [self addChildViewController:_pipOverlayVC];
         [self.view addSubview:_pipOverlayVC.view];
         [_pipOverlayVC didMoveToParentViewController:self];
+        
+        [_overlayVC addTarget:_pipOverlayVC action:@selector(showControls) forEvents:AVPlayerOverlayEventDidPIPBecomeActive];
+        [_overlayVC addTarget:_pipOverlayVC action:@selector(hideControls) forEvents:AVPlayerOverlayEventWillPIPDeactivation];
     }
 }
 
@@ -172,9 +187,6 @@
     [_pipOverlayVC removeFromParentViewController], _pipOverlayVC = nil;
     
     [self.player pause], self.player = nil;
-    
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Video (only audio) on background
@@ -201,6 +213,18 @@
         [self.player performSelector:@selector(play) withObject:nil afterDelay:1.0];
 }
 
+#pragma mark - PIP Events
+
+- (void)disableDealloc
+{
+    _deallocDisabled = self;
+}
+
+- (void)enableDealloc
+{
+    _deallocDisabled = nil;
+}
+
 #pragma mark - Notifications
 
 - (void)applicationWillResignActiveNotification:(NSNotification*)note
@@ -216,7 +240,9 @@
 - (void)avPlayerVCSetVideoURLNotification:(NSNotification*)note
 {
     self.videoURL = note.object;
-    [_overlayVC loadSubtitlesWithURL:note.userInfo[kAVPlayerVCSubtitleURL]];
+    self.subtitlesURL = note.userInfo[kAVPlayerVCSubtitleURL];
+    
+    [_overlayVC loadSubtitlesWithURL:_subtitlesURL];
 }
 
 @end
