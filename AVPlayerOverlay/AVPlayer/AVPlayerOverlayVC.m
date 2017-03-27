@@ -7,7 +7,7 @@
 #import "AVPlayerOverlayVC.h"
 #import "AVPlayerPIPOverlayVC.h"
 #import "SubtitlePackage.h"
-#import <UIView+draggable/UIView+draggable.h>
+#import "UIView+draggable.h"
 
 @import AVFoundation;
 @import MediaPlayer;

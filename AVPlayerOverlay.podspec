@@ -14,7 +14,6 @@ Pod::Spec.new do |s|
   s.source                  = { git: 'https://github.com/priore/AVPlayerOverlay.git', :tag => "v#{s.version}" }
   s.frameworks              = 'AVFoundation', 'CoreMedia', 'AVKit'
   s.source_files 			= 'AVPlayerOverlay/AVPlayer/*.{h,m}'
-  s.xcconfig     			= { 'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/Headers/Public/UIView+draggable',
-                                'OTHER_LDFLAGS' => '"$(inherited)" "-ObjC" "-lUIView+draggable"' }
+  s.public_header_files     = 'AVPlayerOverlay/AVPlayer/*.h'
   s.dependency              'UIView+draggable'
 end
