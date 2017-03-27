@@ -1,6 +1,6 @@
 # AVPlayerOverlay
 
-AVPlayer with custom controls, full screen mode, subtitles (.srt) and AirPlay features.
+AVPlayer with custom controls, full screen mode, subtitles (.srt), Picture-in-Picture and AirPlay features.
 
 **HOW TO USE :**
 
