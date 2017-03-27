@@ -908,89 +908,85 @@ static void *AirPlayContext = &AirPlayContext;
 
 - (void)pipActivate
 {
-    if (_pipButton.enabled)
-    {
-        [UIView animateWithDuration:_pipAnimationDuration / 4.0 animations:^{
-            self.view.alpha = 0.0;
-        } completion:^(BOOL finished) {
-            self.view.hidden = YES;
-            
-            UIViewController *parent = self.parentViewController; // AVPlayerViewController
-            
-            if (_mainWindow == nil)
-                _mainWindow = [UIApplication sharedApplication].keyWindow;
-            
-            self.originalFrame = parent.view.frame;
-            self.mainParent = parent.parentViewController;
-            self.currentFrame = [parent.view convertRect:parent.view.frame toView:_mainWindow];
-            self.containerView = parent.view.superview;
-            self.navController = _mainParent.navigationController;
-            
-            [parent removeFromParentViewController];
-            [parent.view removeFromSuperview];
-            [parent willMoveToParentViewController:nil];
-            
-            parent.view.frame = _currentFrame;
-            
-            if (_isFullscreen) {
-                [_window addSubview:parent.view];
-            } else {
-                [_mainWindow addSubview:parent.view];
-            }
-            
-            parent.view.autoresizesSubviews = YES;
-            parent.view.layer.zPosition = MAXFLOAT;
-            [parent.view enableDragging];
-            
-            CGFloat scaleX = 1.0 / (_currentFrame.size.width / _pipSize.width);
-            CGFloat scaleY = 1.0 / (_currentFrame.size.height / _pipSize.height);
-            
-            CGSize screen = [UIScreen mainScreen].bounds.size;
-            CGPoint finalCenter = CGPointMake((screen.width - _pipSize.width / 2.0f - _pipPadding),
-                                              (screen.height - _pipSize.height / 2.0f - _pipPadding));
-            CGFloat deltaX = finalCenter.x - parent.view.center.x;
-            CGFloat deltaY = finalCenter.y - parent.view.center.y;
-            
-            [self willPIPBecomeActivationViewController:parent];
-            [self hideMainParentBeforePIPActivation];
-
-            [UIView animateWithDuration:_pipAnimationDuration
-                                  delay:0
-                                options:UIViewAnimationOptionCurveEaseInOut
-                             animations:^(void){
-                                 parent.view.transform = CGAffineTransformMake(scaleX, 0.0f, 0.0f, scaleY, deltaX, deltaY);
+    [UIView animateWithDuration:_pipAnimationDuration / 4.0 animations:^{
+        self.view.alpha = 0.0;
+    } completion:^(BOOL finished) {
+        self.view.hidden = YES;
+        
+        UIViewController *parent = self.parentViewController; // AVPlayerViewController
+        [self willPIPBecomeActivationViewController:parent];
+        
+        if (_mainWindow == nil)
+            _mainWindow = [UIApplication sharedApplication].keyWindow;
+        
+        self.originalFrame = parent.view.frame;
+        self.mainParent = parent.parentViewController;
+        self.currentFrame = [parent.view convertRect:parent.view.frame toView:_mainWindow];
+        self.containerView = parent.view.superview;
+        self.navController = _mainParent.navigationController;
+        
+        [parent removeFromParentViewController];
+        [parent.view removeFromSuperview];
+        [parent willMoveToParentViewController:nil];
+        
+        parent.view.frame = _currentFrame;
+        
+        if (_isFullscreen) {
+            [_window addSubview:parent.view];
+        } else {
+            [_mainWindow addSubview:parent.view];
+        }
+        
+        parent.view.autoresizesSubviews = YES;
+        parent.view.layer.zPosition = MAXFLOAT;
+        [parent.view enableDragging];
+        
+        CGFloat scaleX = 1.0 / (_currentFrame.size.width / _pipSize.width);
+        CGFloat scaleY = 1.0 / (_currentFrame.size.height / _pipSize.height);
+        
+        CGSize screen = [UIScreen mainScreen].bounds.size;
+        CGPoint finalCenter = CGPointMake((screen.width - _pipSize.width / 2.0f - _pipPadding),
+                                          (screen.height - _pipSize.height / 2.0f - _pipPadding));
+        CGFloat deltaX = finalCenter.x - parent.view.center.x;
+        CGFloat deltaY = finalCenter.y - parent.view.center.y;
+        
+        [self hideMainParentBeforePIPActivation];
+        
+        [UIView animateWithDuration:_pipAnimationDuration
+                              delay:0
+                            options:UIViewAnimationOptionCurveEaseInOut
+                         animations:^(void){
+                             parent.view.transform = CGAffineTransformMake(scaleX, 0.0f, 0.0f, scaleY, deltaX, deltaY);
+                         }
+                         completion:^(BOOL finished) {
+                             
+                             CGRect frame = parent.view.frame;
+                             parent.view.transform = CGAffineTransformIdentity;
+                             parent.view.frame = frame;
+                             
+                             if (_isFullscreen)
+                             {
+                                 [self willNormalScreenModeToParentViewController:parent];
+                                 [UIView animateWithDuration:_pipAnimationDuration / 2.0 animations:^{
+                                     _window.layer.backgroundColor = [UIColor clearColor].CGColor;
+                                 } completion:^(BOOL finished) {
+                                     [parent.view removeFromSuperview];
+                                     _window.rootViewController = nil;
+                                     
+                                     [_mainWindow addSubview:parent.view];
+                                     [_mainWindow makeKeyAndVisible];
+                                     
+                                     _fullscreenButton.transform = CGAffineTransformIdentity;
+                                     _isFullscreen = NO;
+                                     _window = nil;
+                                     
+                                     [self didNormalScreenModeToParentViewController:parent];
+                                 }];
                              }
-                             completion:^(BOOL finished) {
-                                 
-                                 CGRect frame = parent.view.frame;
-                                 parent.view.transform = CGAffineTransformIdentity;
-                                 parent.view.frame = frame;
-                                 
-                                 if (_isFullscreen)
-                                 {
-                                     [self willNormalScreenModeToParentViewController:parent];
-                                     [UIView animateWithDuration:_pipAnimationDuration / 2.0 animations:^{
-                                         _window.layer.backgroundColor = [UIColor clearColor].CGColor;
-                                     } completion:^(BOOL finished) {
-                                         [parent.view removeFromSuperview];
-                                         _window.rootViewController = nil;
-                                         
-                                         [_mainWindow addSubview:parent.view];
-                                         [_mainWindow makeKeyAndVisible];
-                                         
-                                         _fullscreenButton.transform = CGAffineTransformIdentity;
-                                         _isFullscreen = NO;
-                                         _window = nil;
-                                         
-                                         [self didNormalScreenModeToParentViewController:parent];
-                                     }];
-                                 }
-                                 
-                                 [self didPIPBecomeActivationViewController:parent];
-                             }];
-        }];
-    }
-}
+                             
+                             [self didPIPBecomeActivationViewController:parent];
+                         }];
+    }];}
 
 - (void)pipDeactivate
 {
@@ -1027,11 +1023,6 @@ static void *AirPlayContext = &AirPlayContext;
                                       [self didPIPDeactivationViewController:parent];
                                   }];
     }
-}
-
-- (void)pipClosed
-{
-    _pipButton.enabled = YES;
 }
 
 - (void)showMainParentBeforePIPDeactivation

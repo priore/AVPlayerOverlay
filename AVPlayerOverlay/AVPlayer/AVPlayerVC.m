@@ -69,15 +69,12 @@ __strong static id _deallocDisabled; // used in PIP mode
         
         [_overlayVC addTarget:self action:@selector(disableDealloc) forEvents:AVPlayerOverlayEventDidPIPBecomeActive];
         [_overlayVC addTarget:self action:@selector(enableDealloc) forEvents:AVPlayerOverlayEventDidPIPDeactivation];
-        
-        _overlayVC.pipButton.enabled = (_deallocDisabled == nil); // enable/disable PIP button
     }
     
     if (_PIPStoryboardId.length > 0)
     {
         _pipOverlayVC = [self.storyboard instantiateViewControllerWithIdentifier:_PIPStoryboardId];
         
-        [_pipOverlayVC addTarget:_overlayVC action:@selector(pipClosed) forEvents:AVPlayerOverlayEventPIPClosed];
         [_pipOverlayVC addTarget:self action:@selector(enableDealloc) forEvents:AVPlayerOverlayEventPIPClosed];
         [_pipOverlayVC addTarget:_overlayVC action:@selector(pipDeactivate) forEvents:AVPlayerOverlayEventPIPDeactivationRequest];
         

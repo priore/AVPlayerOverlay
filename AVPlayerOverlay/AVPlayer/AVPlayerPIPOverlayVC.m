@@ -44,6 +44,7 @@
     UITapGestureRecognizer *doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didRestoreButtonSelected:)];
     doubleTapGesture.numberOfTapsRequired = 2;
     [self.view addGestureRecognizer:doubleTapGesture];
+    
 }
 
 - (void)dealloc
@@ -73,6 +74,7 @@
 
 - (void)didRestoreButtonSelected:(id)sender
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self sendActionsForEvent:AVPlayerOverlayEventPIPDeactivationRequest];
 
     if ([_delegate respondsToSelector:@selector(pipOverlayViewController:willPIPDeactivation:)])
@@ -99,6 +101,8 @@
 
 - (void)showControls
 {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didCloseButtonSelected:) name:AVPlayerOverlayVCWillPIPBecomeActiveNotification object:nil];
+
     // show controls
     self.view.hidden = NO;
     [UIView animateWithDuration:_animationDuration animations:^{

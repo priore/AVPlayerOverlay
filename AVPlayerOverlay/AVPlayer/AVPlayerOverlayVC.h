@@ -120,7 +120,6 @@ IB_DESIGNABLE
 
 - (void)pipActivate;
 - (void)pipDeactivate;
-- (void)pipClosed;
 
 - (void)showMainParentBeforePIPDeactivation;
 - (void)hideMainParentBeforePIPActivation;
