@@ -202,6 +202,14 @@ static void *AirPlayContext = &AirPlayContext;
                                                                                           } completion:nil];
                                                                       }
                                                                       
+                                                                      Float64 seconds = CMTimeGetSeconds(time);
+                                                                      [self sendActionsForEvent:AVPlayerOverlayEventPeriodicTimeObserver object:@(seconds)];
+                                                                      
+                                                                      [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidPeriodicTimeObserverNotification object:@(seconds)];
+                                                                      
+                                                                      if ([_delegate respondsToSelector:@selector(avPlayerOverlay:periodicTimeObserver:)])
+                                                                          [_delegate avPlayerOverlay:self periodicTimeObserver:time];
+                                                                      
                                                                   }];
             _videoSlider.value = 0;
             _volumeSlider.value = _player.volume;

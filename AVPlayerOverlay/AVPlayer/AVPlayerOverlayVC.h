@@ -4,23 +4,25 @@
 //  Created by Danilo Priore on 28/04/16.
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
-#define AVPlayerOverlayVCWillFullScreenNotification         @"AVPlayerOverlayVCWillFullScreen"
-#define AVPlayerOverlayVCDidFullScreenNotification          @"AVPlayerOverlayVCDidFullScreen"
-#define AVPlayerOverlayVCWillNormalScreenNotification       @"AVPlayerOverlayVCWillNormalScreen"
-#define AVPlayerOverlayVCDidNormalScreenNotification        @"AVPlayerOverlayVCDidNormalScreen"
-#define AVPlayerOverlayVCAirPlayInUseNotification           @"AVPlayerOverlayVCAirPlayInUse"
-#define AVPlayerOverlayVCAirPlayBecomePresentNotification   @"AVPlayerOverlayVCAirPlayBecomePresent"
-#define AVPlayerOverlayVCAirPlayResignPresentNotification   @"AVPlayerOverlayVCAirPlayResignPresent"
-#define AVPlayerOverlayVCWillPIPBecomeActiveNotification    @"AVPlayerOverlayVCWillPIPBecomeActive"
-#define AVPlayerOverlayVCDidPIPBecomeActiveNotification     @"AVPlayerOverlayVCDidPIPBecomeActive"
-#define AVPlayerOverlayVCWillPIPDeactivationNotification    @"AVPlayerOverlayVCWillPIPDeactivation"
-#define AVPlayerOverlayVCDidPIPDeactivationNotification     @"AVPlayerOverlayVCDidPIPDeactivation"
+#define AVPlayerOverlayVCWillFullScreenNotification             @"AVPlayerOverlayVCWillFullScreen"
+#define AVPlayerOverlayVCDidFullScreenNotification              @"AVPlayerOverlayVCDidFullScreen"
+#define AVPlayerOverlayVCWillNormalScreenNotification           @"AVPlayerOverlayVCWillNormalScreen"
+#define AVPlayerOverlayVCDidNormalScreenNotification            @"AVPlayerOverlayVCDidNormalScreen"
+#define AVPlayerOverlayVCAirPlayInUseNotification               @"AVPlayerOverlayVCAirPlayInUse"
+#define AVPlayerOverlayVCAirPlayBecomePresentNotification       @"AVPlayerOverlayVCAirPlayBecomePresent"
+#define AVPlayerOverlayVCAirPlayResignPresentNotification       @"AVPlayerOverlayVCAirPlayResignPresent"
+#define AVPlayerOverlayVCWillPIPBecomeActiveNotification        @"AVPlayerOverlayVCWillPIPBecomeActive"
+#define AVPlayerOverlayVCDidPIPBecomeActiveNotification         @"AVPlayerOverlayVCDidPIPBecomeActive"
+#define AVPlayerOverlayVCWillPIPDeactivationNotification        @"AVPlayerOverlayVCWillPIPDeactivation"
+#define AVPlayerOverlayVCDidPIPDeactivationNotification         @"AVPlayerOverlayVCDidPIPDeactivation"
+#define AVPlayerOverlayVCDidPeriodicTimeObserverNotification    @"AVPlayerOverlayVCDidPeriodicTimeObserver"
 
 #define kAVPlayerOverlayVCAirPlayInUse  @"airPlayInUse"
 
 #import "AVPlayerOverlayViewController.h"
 
 @import UIKit;
+@import CoreMedia;
 
 @class AVPlayer;
 @protocol AVPlayerOverlayVCDelegate;
@@ -144,6 +146,7 @@ IB_DESIGNABLE
 - (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController didPIPBecomeActive:(id)sender;
 - (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController willPIPDeactivation:(id)sender;
 - (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController didPIPDeactivation:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController periodicTimeObserver:(CMTime)time;
 
 @end
 

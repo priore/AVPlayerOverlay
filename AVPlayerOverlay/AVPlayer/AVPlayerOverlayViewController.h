@@ -13,5 +13,6 @@
 
 - (void)addTarget:(id)target action:(SEL)action forEvents:(AVPlayerOverlayEvents)event;
 - (void)sendActionsForEvent:(AVPlayerOverlayEvents)event;
+- (void)sendActionsForEvent:(AVPlayerOverlayEvents)event object:(id)object;
 
 @end

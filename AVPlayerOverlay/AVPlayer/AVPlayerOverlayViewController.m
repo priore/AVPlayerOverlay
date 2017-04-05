@@ -47,11 +47,16 @@
 
 - (void)sendActionsForEvent:(AVPlayerOverlayEvents)event
 {
+    [self sendActionsForEvent:event object:nil];
+}
+
+- (void)sendActionsForEvent:(AVPlayerOverlayEvents)event object:(id)object
+{
     for (AVPlayerOverlayAction *action in _registeredActions) {
         if (action.event == event) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-            [action.target performSelector:action.action];
+            [action.target performSelector:action.action withObject:object];
 #pragma clang diagnostic pop
         }
     }
