@@ -44,6 +44,7 @@
 @implementation AVPlayerOverlayVC
 
 static void *AirPlayContext = &AirPlayContext;
+static void *PlayViewControllerStatusObservationContext = &PlayViewControllerStatusObservationContext;
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
@@ -140,6 +141,10 @@ static void *AirPlayContext = &AirPlayContext;
     if (_timeObserver)
         [_player removeTimeObserver:_timeObserver];
     _timeObserver = nil;
+
+    @try {
+        [_player removeObserver:self forKeyPath:@"status" context:PlayViewControllerStatusObservationContext];
+    } @catch (NSException *exception) { }
     
     [self deallocAirplay];
 
@@ -167,6 +172,10 @@ static void *AirPlayContext = &AirPlayContext;
             if (_timeObserver)
                 [_player removeTimeObserver:_timeObserver];
             _timeObserver = nil;
+            
+            @try {
+                [_player removeObserver:self forKeyPath:@"status" context:PlayViewControllerStatusObservationContext];
+            } @catch (NSException *exception) { }
             
             _volumeSlider.value = 1.0;
             _videoSlider.value = 0.0;
@@ -211,6 +220,12 @@ static void *AirPlayContext = &AirPlayContext;
                                                                           [_delegate avPlayerOverlay:self periodicTimeObserver:time];
                                                                       
                                                                   }];
+            
+            [_player addObserver:self
+                      forKeyPath:@"status"
+                         options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
+                         context:PlayViewControllerStatusObservationContext];
+
             _videoSlider.value = 0;
             _volumeSlider.value = _player.volume;
             _playButton.enabled = YES;
@@ -270,7 +285,8 @@ static void *AirPlayContext = &AirPlayContext;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (context == AirPlayContext) {
+    if (context == AirPlayContext)
+    {
         if (object == _airPlayInternalButton && [[change valueForKey:NSKeyValueChangeNewKey] intValue] == 1) {
             // airplayIsPresent
             _isAirplayPresent = YES;
@@ -279,6 +295,29 @@ static void *AirPlayContext = &AirPlayContext;
         else {
             _isAirplayPresent = NO;
             [self airplayResignPresent];
+        }
+    }
+    else if (context == PlayViewControllerStatusObservationContext)
+    {
+        AVPlayerStatus status = [[change objectForKey:NSKeyValueChangeNewKey] integerValue];
+        switch (status) {
+            case AVPlayerStatusUnknown:
+                break;
+                
+            case AVPlayerStatusReadyToPlay:
+            {
+                [self sendActionsForEvent:AVPlayerOverlayEventStatusReadyToPlay];
+                
+                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCStatusReadyToPlayNotification object:self];
+                
+                if ([_delegate respondsToSelector:@selector(avPlayerOverlay:statusReadyToPlay:)])
+                    [_delegate avPlayerOverlay:self statusReadyToPlay:nil];
+                
+                break;
+            }
+                
+            case AVPlayerStatusFailed:
+                break;
         }
     }
     else

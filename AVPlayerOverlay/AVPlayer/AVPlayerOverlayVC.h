@@ -16,6 +16,7 @@
 #define AVPlayerOverlayVCWillPIPDeactivationNotification        @"AVPlayerOverlayVCWillPIPDeactivation"
 #define AVPlayerOverlayVCDidPIPDeactivationNotification         @"AVPlayerOverlayVCDidPIPDeactivation"
 #define AVPlayerOverlayVCDidPeriodicTimeObserverNotification    @"AVPlayerOverlayVCDidPeriodicTimeObserver"
+#define AVPlayerOverlayVCStatusReadyToPlayNotification          @"AVPlayerOverlayVCStatusReadyToPlay"
 
 #define kAVPlayerOverlayVCAirPlayInUse  @"airPlayInUse"
 
@@ -147,6 +148,7 @@ IB_DESIGNABLE
 - (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController willPIPDeactivation:(id)sender;
 - (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController didPIPDeactivation:(id)sender;
 - (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController periodicTimeObserver:(CMTime)time;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController statusReadyToPlay:(id)sender;
 
 @end
 
