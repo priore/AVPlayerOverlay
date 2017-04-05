@@ -1,20 +1,20 @@
 //
-//  AVPlayerOverlayViewCntroller.m
+//  AVPlayerOverlayViewController.m
 //  AVPlayerOverlay
 //
 //  Created by Danilo Priore on 27/03/17.
 //  Copyright © 2017 Danilo Priore. All rights reserved.
 //
 
-#import "AVPlayerOverlayViewCntroller.h"
+#import "AVPlayerOverlayViewController.h"
 
-@interface AVPlayerOverlayViewCntroller()
+@interface AVPlayerOverlayViewController()
 
 @property (nonatomic, strong) NSMutableArray *registeredActions;
 
 @end
 
-@implementation AVPlayerOverlayViewCntroller
+@implementation AVPlayerOverlayViewController
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {

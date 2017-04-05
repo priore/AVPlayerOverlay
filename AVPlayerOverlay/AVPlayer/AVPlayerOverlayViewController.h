@@ -1,5 +1,5 @@
 //
-//  AVPlayerOverlayViewCntroller.h
+//  AVPlayerOverlayViewController.h
 //  AVPlayerOverlay
 //
 //  Created by Danilo Priore on 27/03/17.
@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "AVPlayerOverlayAction.h"
 
-@interface AVPlayerOverlayViewCntroller : UIViewController
+@interface AVPlayerOverlayViewController : UIViewController
 
 - (void)addTarget:(id)target action:(SEL)action forEvents:(AVPlayerOverlayEvents)event;
 - (void)sendActionsForEvent:(AVPlayerOverlayEvents)event;

@@ -18,7 +18,7 @@
 
 #define kAVPlayerOverlayVCAirPlayInUse  @"airPlayInUse"
 
-#import "AVPlayerOverlayViewCntroller.h"
+#import "AVPlayerOverlayViewController.h"
 
 @import UIKit;
 
@@ -32,7 +32,7 @@ typedef NS_ENUM(NSInteger, AVPlayerFullscreenAutorotaionMode)
 };
 
 IB_DESIGNABLE
-@interface AVPlayerOverlayVC : AVPlayerOverlayViewCntroller
+@interface AVPlayerOverlayVC : AVPlayerOverlayViewController
 
 @property (nonatomic, weak) IBOutlet UIView *playerBarView;
 @property (nonatomic, weak) IBOutlet UIButton *playButton;

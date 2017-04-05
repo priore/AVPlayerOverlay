@@ -6,13 +6,13 @@
 //  Copyright © 2017 Danilo Priore. All rights reserved.
 //
 
-#import "AVPlayerOverlayViewCntroller.h"
+#import "AVPlayerOverlayViewController.h"
 
 @class AVPlayer;
 @protocol AVPlayerPIPOverlayVCDelegate;
 
 IB_DESIGNABLE
-@interface AVPlayerPIPOverlayVC : AVPlayerOverlayViewCntroller
+@interface AVPlayerPIPOverlayVC : AVPlayerOverlayViewController
 
 @property (nonatomic, weak) IBOutlet UIView *playerBarView;
 @property (nonatomic, weak) IBOutlet UIButton *playButton;
