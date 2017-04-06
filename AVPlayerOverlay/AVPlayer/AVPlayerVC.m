@@ -140,6 +140,10 @@ __strong static id _deallocDisabled; // used in PIP mode
                     return;
             }
             
+            @try {
+                [self.player.currentItem removeObserver:_overlayVC forKeyPath:@"status"];
+            } @catch (NSException *exception) { }
+            
             NSDictionary *options = _userAgent.length > 0 ? @{@"AVURLAssetHTTPHeaderFieldsKey" : @{@"User-Agent": _userAgent}} : nil;
             AVURLAsset *url_asset = [AVURLAsset URLAssetWithURL:_videoURL options:options];
             AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:url_asset];

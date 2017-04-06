@@ -29,6 +29,7 @@
 
 @property (nonatomic, strong) id timeObserver;
 
+@property (nonatomic, assign) BOOL isPreloaded;
 @property (nonatomic, assign) BOOL isVideoSliderMoving;
 @property (nonatomic, assign) BOOL isAirPlayRoutingVisible;
 
@@ -44,7 +45,7 @@
 @implementation AVPlayerOverlayVC
 
 static void *AirPlayContext = &AirPlayContext;
-static void *PlayViewControllerStatusObservationContext = &PlayViewControllerStatusObservationContext;
+static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControllerCurrentItemObservationContext;
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
@@ -54,8 +55,10 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
         _pipAnimationDuration = 1.0;
         _pipPadding = 10.0;
         
+        _isPreloaded = NO;
         _isFullscreen = NO;
         _isVideoSliderMoving = NO;
+        _isPlayerBasVisibile = YES;
         _barAnimationDuration = 1.0;
         _playBarAutoideInterval = 5.0;
         _volumeAnimationDuration = .25;
@@ -88,6 +91,8 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
     _volumeSlider.value = [AVAudioSession sharedInstance].outputVolume;
     
     _playButton.enabled = NO;
+    _playBigButton.alpha = 0.0;
+    _playBigButton.hidden = YES;
     _playBigButton.enabled = NO;
     _playBigButton.layer.borderWidth = 1.0;
     _playBigButton.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -143,7 +148,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
     _timeObserver = nil;
 
     @try {
-        [_player removeObserver:self forKeyPath:@"status"];
+        [_player.currentItem removeObserver:self forKeyPath:@"status"];
     } @catch (NSException *exception) { }
     
     [self deallocAirplay];
@@ -172,7 +177,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
                 [_player removeTimeObserver:_timeObserver], _timeObserver = nil;
             
             @try {
-                [_player removeObserver:self forKeyPath:@"status"];
+                [_player.currentItem removeObserver:self forKeyPath:@"status"];
             } @catch (NSException *exception) { }
         }
         
@@ -227,10 +232,15 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
                                                                       
                                                                   }];
             
-            [_player addObserver:self
-                      forKeyPath:@"status"
-                         options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
-                         context:PlayViewControllerStatusObservationContext];
+            if (_player.currentItem) {
+                
+                _isPreloaded = NO;
+                
+                [_player.currentItem addObserver:self
+                          forKeyPath:@"status"
+                             options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
+                             context:PlayViewControllerCurrentItemObservationContext];
+            }
 
             _videoSlider.value = 0;
             _volumeSlider.value = _player.volume;
@@ -239,7 +249,6 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
         }
         
         _playButton.selected = NO;
-        _playBigButton.hidden = NO;
         _playBigButton.selected = NO;
 
         [self showPlayerBar];
@@ -287,7 +296,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
     });
 }
 
-#pragma mark - Observe
+#pragma mark - Observer
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
@@ -303,7 +312,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
             [self airplayResignPresent];
         }
     }
-    else if (context == PlayViewControllerStatusObservationContext)
+    else if (context == PlayViewControllerCurrentItemObservationContext)
     {
         AVPlayerStatus status = [[change objectForKey:NSKeyValueChangeNewKey] integerValue];
         switch (status) {
@@ -351,6 +360,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
                       wself.volumeSlider.alpha = 0.0;
                       wself.playBigButton.alpha = 0.0;
                   } completion:^(BOOL finished) {
+                      _isPlayerBarVisibile = NO;
                       wself.volumeSlider.hidden = YES;
                       wself.playerBarView.hidden = YES;
                       wself.playBigButton.hidden = YES;
@@ -360,7 +370,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
 - (void)showPlayerBar
 {
     _playerBarView.hidden = NO;
-    _playBigButton.hidden = NO;
+    _playBigButton.hidden = !_isPreloaded;
     
     __weak typeof(self) wself = self;
     [self setConstraintValue:0
@@ -370,6 +380,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
                       wself.playBigButton.alpha = 1.0;
                   }
                   completion:^(BOOL finished) {
+                      _isPlayerBarVisibile = YES;
                       [wself autoHidePlayerBar];
                   }];
 }
@@ -549,6 +560,15 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
 
 - (void)statusReadyToPlay
 {
+    _isPreloaded = YES;
+    
+    _playBigButton.hidden = NO;
+    if (_isPlayerBarVisibile) {
+        [UIView animateWithDuration:0.3 animations:^{
+            _playBigButton.alpha = 1.0;
+        }];
+    }
+    
     [self sendActionsForEvent:AVPlayerOverlayEventStatusReadyToPlay];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCStatusReadyToPlayNotification object:self];

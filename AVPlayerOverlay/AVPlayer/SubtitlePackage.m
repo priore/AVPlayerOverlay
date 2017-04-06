@@ -219,8 +219,7 @@ typedef enum {
         hour=[NSString stringWithFormat:@"0%d:",(int)timeInSecond/3600];
     }
     else{
-        //hour=@"00-";
-        hour=@" ";
+        hour=@"00:";
     }
     
     NSString *min;

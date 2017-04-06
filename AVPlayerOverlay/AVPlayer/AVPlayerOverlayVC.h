@@ -68,6 +68,7 @@ IB_DESIGNABLE
 @property (nonatomic, assign, readonly) BOOL isFullscreen;
 @property (nonatomic, assign, readonly) BOOL isAirplayInUse;
 @property (nonatomic, assign, readonly) BOOL isAirplayPresent;
+@property (nonatomic, assign, readonly) BOOL isPlayerBarVisibile;
 
 @property (nonatomic, strong, readonly) NSString *airPlayPlayerName;
 
