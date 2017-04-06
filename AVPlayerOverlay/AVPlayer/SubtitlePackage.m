@@ -211,12 +211,12 @@ typedef enum {
 
 #pragma mark - save
 
-- (NSString *)makeSaveName:(CMTime)time {
++ (NSString *)makeSaveName:(CMTime)time {
     float timeInSecond=CMTimeGetSeconds(time);
     
     NSString *hour;
     if (timeInSecond/3600>0) {
-        hour=[NSString stringWithFormat:@"0%d-",(int)timeInSecond/3600];
+        hour=[NSString stringWithFormat:@"0%d:",(int)timeInSecond/3600];
     }
     else{
         //hour=@"00-";
@@ -225,26 +225,26 @@ typedef enum {
     
     NSString *min;
     if ((int)timeInSecond%3600/60<10) {
-        min=[NSString stringWithFormat:@"0%d-",(int)timeInSecond%3600/60];
+        min=[NSString stringWithFormat:@"0%d:",(int)timeInSecond%3600/60];
     }else{
-        min=[NSString stringWithFormat:@"%d-",(int)timeInSecond%3600/60];
+        min=[NSString stringWithFormat:@"%d:",(int)timeInSecond%3600/60];
     }
     
     
     NSString *sec;
     if ((int)timeInSecond%3600%60<10) {
-        sec=[NSString stringWithFormat:@"0%d-",(int)timeInSecond%3600%60];
+        sec=[NSString stringWithFormat:@"0%d",(int)timeInSecond%3600%60];
     }else{
-        sec=[NSString stringWithFormat:@"%d-",(int)timeInSecond%3600%60];
+        sec=[NSString stringWithFormat:@"%d",(int)timeInSecond%3600%60];
     }
     
     /*
     float fract=(timeInSecond-(int)timeInSecond)*100;
     NSString *fra;
     if (fract<10) {
-        fra=[NSString stringWithFormat:@"0%d",(int)fract];
+        fra=[NSString stringWithFormat:@":0%d",(int)fract];
     }else{
-        fra=[NSString stringWithFormat:@"%d",(int)fract];
+        fra=[NSString stringWithFormat:@":%d",(int)fract];
     }
     
     NSString *saveName=[[[hour stringByAppendingString:min] stringByAppendingString:sec] stringByAppendingString:fra];

@@ -31,7 +31,7 @@
 - (NSUInteger)indexOfProperSubtitleWithGivenCMTime:(CMTime)time;
 - (NSInteger)indexOfBackForWard:(CMTime)time;
 
-- (NSString *)makeSaveName:(CMTime)time;
++ (NSString *)makeSaveName:(CMTime)time;
 - (void)saveSubtitleWithTime:(CMTime)time inPath:(NSString *)path;
 
 //在setting里面使用

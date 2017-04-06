@@ -189,7 +189,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
             
             if (_durationTimeLabel) {
                 CMTime duration = [self playerItemDuration];
-                _durationTimeLabel.text = CMTIME_IS_VALID(duration) ? [_subtitles makeSaveName:duration] : nil;
+                _durationTimeLabel.text = CMTIME_IS_VALID(duration) ? [SubtitlePackage makeSaveName:duration] : nil;
             }
             
             __weak typeof(self) wself = self;
@@ -203,7 +203,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
                                                                       wself.playBigButton.selected = wself.player.rate != 0;
                                                                       
                                                                       if (wself.currentTimeLabel)
-                                                                          wself.currentTimeLabel.text = CMTIME_IS_VALID(time) ? [wself.subtitles makeSaveName:time] : nil;
+                                                                          wself.currentTimeLabel.text = CMTIME_IS_VALID(time) ? [SubtitlePackage makeSaveName:time] : nil;
                                                                       
                                                                       if (!wself.subtitlesLabel.hidden && wself.subtitles.subtitleItems.count > 0)
                                                                       {
