@@ -55,6 +55,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
         _pipAnimationDuration = 1.0;
         _pipPadding = 10.0;
         
+        _isPIP = NO;
         _isPreloaded = NO;
         _isFullscreen = NO;
         _isVideoSliderMoving = NO;
@@ -657,6 +658,8 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 
 - (void)didPIPBecomeActivationViewController:(UIViewController*)parent
 {
+    _isPIP = YES;
+    
     [self sendActionsForEvent:AVPlayerOverlayEventDidPIPBecomeActive];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidPIPBecomeActiveNotification object:self];
@@ -677,6 +680,8 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 
 - (void)didPIPDeactivationViewController:(UIViewController*)parent
 {
+    _isPIP = NO;
+    
     [self sendActionsForEvent:AVPlayerOverlayEventDidPIPDeactivation];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidPIPDeactivationNotification object:self];

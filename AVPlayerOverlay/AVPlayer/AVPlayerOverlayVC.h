@@ -65,6 +65,7 @@ IB_DESIGNABLE
 @property (nonatomic, assign) IBInspectable NSTimeInterval playBarAutoideInterval;
 @property (nonatomic, assign) IBInspectable AVPlayerFullscreenAutorotaionMode autorotationMode;
 
+@property (nonatomic, assign, readonly) BOOL isPIP;
 @property (nonatomic, assign, readonly) BOOL isFullscreen;
 @property (nonatomic, assign, readonly) BOOL isAirplayInUse;
 @property (nonatomic, assign, readonly) BOOL isAirplayPresent;
