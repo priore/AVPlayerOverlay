@@ -192,11 +192,6 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 
         } else {
             
-            if (_durationTimeLabel) {
-                CMTime duration = [self playerItemDuration];
-                _durationTimeLabel.text = CMTIME_IS_VALID(duration) ? [SubtitlePackage makeSaveName:duration] : nil;
-            }
-            
             __weak typeof(self) wself = self;
             self.timeObserver =  [_player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(0.5, NSEC_PER_SEC)
                                                                        queue:NULL
@@ -567,6 +562,11 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
         [UIView animateWithDuration:0.3 animations:^{
             _playBigButton.alpha = 1.0;
         }];
+    }
+
+    if (_durationTimeLabel) {
+        CMTime duration = [self playerItemDuration];
+        _durationTimeLabel.text = CMTIME_IS_VALID(duration) ? [SubtitlePackage makeSaveName:duration] : nil;
     }
     
     [self sendActionsForEvent:AVPlayerOverlayEventStatusReadyToPlay];
