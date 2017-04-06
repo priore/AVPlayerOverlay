@@ -104,9 +104,9 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
     
     // actions
     [_playButton addTarget:self action:@selector(didPlayButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
+    [_playBigButton addTarget:self action:@selector(didPlayButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
     [_volumeButton addTarget:self action:@selector(didVolumeButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
     [_fullscreenButton addTarget:self action:@selector(didFullscreenButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
-    [_playBigButton addTarget:self action:@selector(didPlayButtonSelected:) forControlEvents:UIControlEventTouchUpInside];
     [_videoSlider addTarget:self action:@selector(didVideoSliderTouchUp:) forControlEvents:UIControlEventTouchUpInside];
     [_videoSlider addTarget:self action:@selector(didVideoSliderTouchDown:) forControlEvents:UIControlEventTouchDown];
     [_volumeSlider addTarget:self action:@selector(didVolumeSliderValueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -198,6 +198,9 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
                                                                   usingBlock:^(CMTime time){
                                                                       
                                                                       [wself updateProgressBar];
+                                                                      
+                                                                      wself.playButton.selected = wself.player.rate != 0;
+                                                                      wself.playBigButton.selected = wself.player.rate != 0;
                                                                       
                                                                       if (wself.currentTimeLabel)
                                                                           wself.currentTimeLabel.text = CMTIME_IS_VALID(time) ? [wself.subtitles makeSaveName:time] : nil;
