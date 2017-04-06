@@ -305,16 +305,8 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
                 break;
                 
             case AVPlayerStatusReadyToPlay:
-            {
-                [self sendActionsForEvent:AVPlayerOverlayEventStatusReadyToPlay];
-                
-                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCStatusReadyToPlayNotification object:self];
-                
-                if ([_delegate respondsToSelector:@selector(avPlayerOverlay:statusReadyToPlay:)])
-                    [_delegate avPlayerOverlay:self statusReadyToPlay:nil];
-                
+                [self statusReadyToPlay];
                 break;
-            }
                 
             case AVPlayerStatusFailed:
                 break;
@@ -548,6 +540,16 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
 }
 
 #pragma mark - Overridable Methods
+
+- (void)statusReadyToPlay
+{
+    [self sendActionsForEvent:AVPlayerOverlayEventStatusReadyToPlay];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCStatusReadyToPlayNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:statusReadyToPlay:)])
+        [_delegate avPlayerOverlay:self statusReadyToPlay:nil];
+}
 
 - (void)willFullScreenModeFromParentViewController:(UIViewController*)parent
 {

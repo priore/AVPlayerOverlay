@@ -95,6 +95,7 @@ IB_DESIGNABLE
 - (void)videoSliderEnabled:(BOOL)enabled;
 
 // Overridable Methods
+- (void)statusReadyToPlay;
 - (void)willFullScreenModeFromParentViewController:(UIViewController*)parent;
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent;
 - (void)willNormalScreenModeToParentViewController:(UIViewController*)parent;
