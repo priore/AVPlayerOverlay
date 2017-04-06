@@ -11,6 +11,7 @@
 #import "AVPlayerPIPOverlayVC.h"
 
 @import AVKit;
+@import AVFoundation;
 
 IB_DESIGNABLE
 @interface AVPlayerVC : AVPlayerViewController

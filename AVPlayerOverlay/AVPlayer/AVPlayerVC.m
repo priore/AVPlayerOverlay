@@ -180,6 +180,9 @@ __strong static id _deallocDisabled; // used in PIP mode
 
 - (void)dealloc
 {
+    [_overlayVC.player pause];
+    [_overlayVC setPlayer:nil];
+    
     [_overlayVC removeFromParentViewController], _overlayVC = nil;
     [_pipOverlayVC removeFromParentViewController], _pipOverlayVC = nil;
     

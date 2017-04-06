@@ -143,7 +143,7 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
     _timeObserver = nil;
 
     @try {
-        [_player removeObserver:self forKeyPath:@"status" context:PlayViewControllerStatusObservationContext];
+        [_player removeObserver:self forKeyPath:@"status"];
     } @catch (NSException *exception) { }
     
     [self deallocAirplay];
@@ -165,17 +165,20 @@ static void *PlayViewControllerStatusObservationContext = &PlayViewControllerSta
 - (void)setPlayer:(AVPlayer *)player
 {
     @synchronized (self) {
+        
+        if (_player) {
+            
+            if (_timeObserver)
+                [_player removeTimeObserver:_timeObserver], _timeObserver = nil;
+            
+            @try {
+                [_player removeObserver:self forKeyPath:@"status"];
+            } @catch (NSException *exception) { }
+        }
+        
         _player = player;
 
         if (_player == nil) {
-            
-            if (_timeObserver)
-                [_player removeTimeObserver:_timeObserver];
-            _timeObserver = nil;
-            
-            @try {
-                [_player removeObserver:self forKeyPath:@"status" context:PlayViewControllerStatusObservationContext];
-            } @catch (NSException *exception) { }
             
             _volumeSlider.value = 1.0;
             _videoSlider.value = 0.0;
