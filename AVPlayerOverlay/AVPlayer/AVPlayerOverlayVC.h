@@ -17,6 +17,7 @@
 #define AVPlayerOverlayVCDidPIPDeactivationNotification         @"AVPlayerOverlayVCDidPIPDeactivation"
 #define AVPlayerOverlayVCDidPeriodicTimeObserverNotification    @"AVPlayerOverlayVCDidPeriodicTimeObserver"
 #define AVPlayerOverlayVCStatusReadyToPlayNotification          @"AVPlayerOverlayVCStatusReadyToPlay"
+#define AVPlayerOverlayVCDidCloseAllNotification                @"AVPlayerOverlayVCDidCloseAll"
 
 #define kAVPlayerOverlayVCAirPlayInUse  @"airPlayInUse"
 
@@ -97,6 +98,7 @@ IB_DESIGNABLE
 - (void)videoSliderEnabled:(BOOL)enabled;
 
 // Overridable Methods
+- (void)didCloseAll;
 - (void)statusReadyToPlay;
 - (void)willFullScreenModeFromParentViewController:(UIViewController*)parent;
 - (void)didFullScreenModeFromParentViewController:(UIViewController*)parent;
@@ -112,6 +114,17 @@ IB_DESIGNABLE
 - (void)loadSubtitlesWithURL:(NSURL*)url;
 
 - (NSAttributedString*)attributedSubtitle:(id)subtitle;
+
+- (void)closeAll;
+- (CMTime)playerItemDuration;
+
+- (void)animatedNormalScreenWithDuration:(CGFloat)duration
+                               animation:(void(^)(UIViewController *parent))animation
+                              completion:(void(^)(BOOL finished))completion;
+
+- (void)animmatedPIPDeactivationWithDuration:(CGFloat)duration
+                                   animation:(void(^)(UIViewController *parent))animation
+                                  completion:(void(^)(BOOL finished))completion;
 
 - (void)setupAirPlay;
 - (void)deallocAirplay;
@@ -152,6 +165,7 @@ IB_DESIGNABLE
 - (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController didPIPDeactivation:(id)sender;
 - (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController periodicTimeObserver:(CMTime)time;
 - (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController statusReadyToPlay:(id)sender;
+- (void)avPlayerOverlay:(AVPlayerOverlayVC*)viewController didCloseAll:(id)sender;
 
 @end
 

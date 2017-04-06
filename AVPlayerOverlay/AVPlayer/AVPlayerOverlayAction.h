@@ -23,7 +23,8 @@ typedef NS_OPTIONS(NSUInteger, AVPlayerOverlayEvents) {
     AVPlayerOverlayEventPIPDeactivationRequest,
     AVPlayerOverlayEventPIPClosed,
     AVPlayerOverlayEventPeriodicTimeObserver,
-    AVPlayerOverlayEventStatusReadyToPlay
+    AVPlayerOverlayEventStatusReadyToPlay,
+    AVPlayerOverlayEventDidCloseAll
 };
 
 @interface AVPlayerOverlayAction : NSObject

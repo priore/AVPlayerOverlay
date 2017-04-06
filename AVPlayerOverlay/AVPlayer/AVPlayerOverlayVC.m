@@ -495,38 +495,11 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
                                       [self didFullScreenModeFromParentViewController:parent];
                                   }];
         
-    } else if (parent) {
+    } else {
         
-        [self willNormalScreenModeToParentViewController:parent];
-        
-        _window.frame = _mainWindow.bounds;
-        [UIView animateKeyframesWithDuration:_fullscreenAnimtationDuration
-                                       delay:0
-                                     options:UIViewKeyframeAnimationOptionLayoutSubviews
-                                  animations:^{
-                                      _window.frame = _currentFrame;
-                                  } completion:^(BOOL finished) {
-                                      
-                                      [parent.view removeFromSuperview];
-                                      _window.rootViewController = nil;
-                                      
-                                      [_mainParent addChildViewController:parent];
-                                      [_containerView addSubview:parent.view];
-                                      parent.view.frame = _originalFrame;
-                                      [parent didMoveToParentViewController:_mainParent];
-                                      
-                                      [_mainWindow makeKeyAndVisible];
-                                      
-                                      _fullscreenButton.transform = CGAffineTransformIdentity;
-                                      _isFullscreen = NO;
-
-                                      _containerView = nil;
-                                      _mainParent = nil;
-                                      _window = nil;
-                                      
-                                      [self didNormalScreenModeToParentViewController:parent];
-                                  }];
-        
+        [self animatedNormalScreenWithDuration:_fullscreenAnimtationDuration animation:^(UIViewController *parent) {
+            _window.frame = _currentFrame;
+        } completion:nil];
     }
     
     [self autoHidePlayerBar];
@@ -554,6 +527,16 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 
 #pragma mark - Overridable Methods
 
+- (void)didCloseAll
+{
+    [self sendActionsForEvent:AVPlayerOverlayEventDidCloseAll object:self];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidCloseAllNotification object:self];
+    
+    if ([_delegate respondsToSelector:@selector(avPlayerOverlay:didCloseAll:)])
+        [_delegate avPlayerOverlay:self didCloseAll:nil];
+}
+
 - (void)statusReadyToPlay
 {
     _isPreloaded = YES;
@@ -564,13 +547,13 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
             _playBigButton.alpha = 1.0;
         }];
     }
-
+    
     if (_durationTimeLabel) {
         CMTime duration = [self playerItemDuration];
         _durationTimeLabel.text = CMTIME_IS_VALID(duration) ? [SubtitlePackage makeSaveName:duration] : nil;
     }
     
-    [self sendActionsForEvent:AVPlayerOverlayEventStatusReadyToPlay];
+    [self sendActionsForEvent:AVPlayerOverlayEventStatusReadyToPlay object:self];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCStatusReadyToPlayNotification object:self];
     
@@ -583,7 +566,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
     _hiddenNavBar = self.navigationController.isNavigationBarHidden;
     _hiddenStatusBar = [UIApplication sharedApplication].isStatusBarHidden;
     
-    [self sendActionsForEvent:AVPlayerOverlayEventWillFullScreenMode];
+    [self sendActionsForEvent:AVPlayerOverlayEventWillFullScreenMode object:parent];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillFullScreenNotification object:self];
     
@@ -609,7 +592,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
         [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
     }
 
-    [self sendActionsForEvent:AVPlayerOverlayEventDidFullScreenMode];
+    [self sendActionsForEvent:AVPlayerOverlayEventDidFullScreenMode object:parent];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidFullScreenNotification object:self];
     
@@ -625,7 +608,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
     [[UIApplication sharedApplication] setStatusBarHidden:_hiddenStatusBar withAnimation:UIStatusBarAnimationFade];
     [self.navigationController setNavigationBarHidden:_hiddenNavBar animated:YES];
 
-    [self sendActionsForEvent:AVPlayerOverlayEventWillNormalScreenMode];
+    [self sendActionsForEvent:AVPlayerOverlayEventWillNormalScreenMode object:parent];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillNormalScreenNotification object:self];
     
@@ -638,7 +621,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
     if (_autorotationMode == AVPlayerFullscreenAutorotationLandscapeMode)
         [self forceDeviceOrientation:UIInterfaceOrientationPortrait];
     
-    [self sendActionsForEvent:AVPlayerOverlayEventDidNormalScreenMode];
+    [self sendActionsForEvent:AVPlayerOverlayEventDidNormalScreenMode object:parent];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidNormalScreenNotification object:self];
     
@@ -648,7 +631,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 
 - (void)willPIPBecomeActivationViewController:(UIViewController*)parent
 {
-    [self sendActionsForEvent:AVPlayerOverlayEventWillPIPBecomeActive];
+    [self sendActionsForEvent:AVPlayerOverlayEventWillPIPBecomeActive object:parent];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillPIPBecomeActiveNotification object:self];
     
@@ -660,7 +643,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 {
     _isPIP = YES;
     
-    [self sendActionsForEvent:AVPlayerOverlayEventDidPIPBecomeActive];
+    [self sendActionsForEvent:AVPlayerOverlayEventDidPIPBecomeActive object:parent];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidPIPBecomeActiveNotification object:self];
     
@@ -670,7 +653,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 
 - (void)willPIPDeactivationViewController:(UIViewController*)parent
 {
-    [self sendActionsForEvent:AVPlayerOverlayEventWillPIPDeactivation];
+    [self sendActionsForEvent:AVPlayerOverlayEventWillPIPDeactivation object:parent];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCWillPIPDeactivationNotification object:self];
     
@@ -682,7 +665,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 {
     _isPIP = NO;
     
-    [self sendActionsForEvent:AVPlayerOverlayEventDidPIPDeactivation];
+    [self sendActionsForEvent:AVPlayerOverlayEventDidPIPDeactivation object:parent];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidPIPDeactivationNotification object:self];
     
@@ -815,6 +798,23 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 
 #pragma mark - Player Helper
 
+- (void)closeAll
+{
+    // close fullscreen
+    [self animatedNormalScreenWithDuration:_fullscreenAnimtationDuration / 2.0 animation:^(UIViewController *parent) {
+        _window.transform = CGAffineTransformScale(_window.transform, 0.01, 0.01);
+    } completion:^(BOOL finished) {
+        [self didCloseAll];
+    }];
+    
+    // close PIP
+    [self animmatedPIPDeactivationWithDuration:_pipAnimationDuration / 2.0 animation:^(UIViewController *parent) {
+        parent.view.transform = CGAffineTransformScale(parent.view.transform, 0.01, 0.01);
+    } completion:^(BOOL finished) {
+        [self didCloseAll];
+    }];
+}
+
 - (CMTime)playerItemDuration
 {
     if (_player.currentItem && _player.currentItem.asset) {
@@ -824,6 +824,97 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
     }
     
     return kCMTimeInvalid;
+}
+
+- (void)animatedNormalScreenWithDuration:(CGFloat)duration animation:(void (^)(UIViewController *parent))animation completion:(void(^)(BOOL finished))completion
+{
+    if (_isFullscreen) {
+        
+        UIViewController *parent = self.parentViewController; // AVPlayerViewController
+        if (parent) {
+            
+            [self willNormalScreenModeToParentViewController:parent];
+            
+            _window.frame = _mainWindow.bounds;
+            [UIView animateKeyframesWithDuration:duration
+                                           delay:0
+                                         options:UIViewKeyframeAnimationOptionLayoutSubviews
+                                      animations:^{
+                                          if (animation)
+                                              animation(parent);
+                                      }
+                                      completion:^(BOOL finished) {
+                                          
+                                          [parent.view removeFromSuperview];
+                                          _window.rootViewController = nil;
+                                          
+                                          [_mainParent addChildViewController:parent];
+                                          [_containerView addSubview:parent.view];
+                                          parent.view.frame = _originalFrame;
+                                          [parent didMoveToParentViewController:_mainParent];
+                                          
+                                          [_mainWindow makeKeyAndVisible];
+                                          
+                                          _fullscreenButton.transform = CGAffineTransformIdentity;
+                                          _isFullscreen = NO;
+                                          
+                                          _containerView = nil;
+                                          _mainParent = nil;
+                                          _window = nil;
+                                          
+                                          [self didNormalScreenModeToParentViewController:parent];
+                                          
+                                          if (completion)
+                                              completion(finished);
+                                          
+                                      }];
+        }
+    }
+}
+
+- (void)animmatedPIPDeactivationWithDuration:(CGFloat)duration animation:(void (^)(UIViewController *parent))animation completion:(void(^)(BOOL finished))completion
+{
+    if (_isPIP) {
+        
+        UIViewController *parent = self.parentViewController; // AVPlayerViewController
+        if (parent) {
+            
+            [self willPIPDeactivationViewController:parent];
+            [self showMainParentBeforePIPDeactivation];
+            
+            [UIView animateWithDuration:duration
+                                  delay:0
+                                options:UIViewAnimationOptionCurveEaseInOut
+                             animations:^{
+                                 if (animation) {
+                                     animation(parent);
+                                 }
+                             }
+                             completion:^(BOOL finished) {
+                                 
+                                 [parent.view removeFromSuperview];
+                                 
+                                 [_mainParent addChildViewController:parent];
+                                 [_containerView addSubview:parent.view];
+                                 parent.view.frame = _originalFrame;
+                                 [parent didMoveToParentViewController:_mainParent];
+                                 
+                                 self.view.alpha = 1.0;
+                                 self.view.hidden = NO;
+                                 [self showPlayerBar];
+                                 
+                                 _navController = nil;
+                                 _containerView = nil;
+                                 _mainParent = nil;
+                                 
+                                 [self didPIPDeactivationViewController:parent];
+                                 
+                                 if (completion) {
+                                     completion(finished);
+                                 }
+                             }];
+        }
+    }
 }
 
 #pragma mark - AirPlay
@@ -1070,39 +1161,9 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 
 - (void)pipDeactivate
 {
-    UIViewController *parent = self.parentViewController; // AVPlayerViewController
-
-    if (parent)
-    {
-        
-        [self willPIPDeactivationViewController:parent];
-        [self showMainParentBeforePIPDeactivation];
-        
-        [UIView animateKeyframesWithDuration:_pipAnimationDuration
-                                       delay:0
-                                     options:UIViewKeyframeAnimationOptionLayoutSubviews
-                                  animations:^{
-                                      parent.view.frame = _currentFrame;
-                                  } completion:^(BOOL finished) {
-                                      
-                                      [parent.view removeFromSuperview];
-                                      
-                                      [_mainParent addChildViewController:parent];
-                                      [_containerView addSubview:parent.view];
-                                      parent.view.frame = _originalFrame;
-                                      [parent didMoveToParentViewController:_mainParent];
-                                      
-                                      self.view.alpha = 1.0;
-                                      self.view.hidden = NO;
-                                      [self showPlayerBar];
-                                      
-                                      _navController = nil;
-                                      _containerView = nil;
-                                      _mainParent = nil;
-                                      
-                                      [self didPIPDeactivationViewController:parent];
-                                  }];
-    }
+    [self animmatedPIPDeactivationWithDuration:_pipAnimationDuration animation:^(UIViewController *parent) {
+        parent.view.frame = _currentFrame;
+    } completion:nil];
 }
 
 - (void)showMainParentBeforePIPDeactivation
