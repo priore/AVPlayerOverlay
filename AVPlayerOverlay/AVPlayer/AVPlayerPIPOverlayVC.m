@@ -131,6 +131,8 @@
         
         [self sendActionsForEvent:AVPlayerOverlayEventPIPClosed];
         
+        [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayPIPClosedNotification object:self];
+        
         if ([_delegate respondsToSelector:@selector(pipOverlayViewController:willPIPClosed:)])
             [_delegate pipOverlayViewController:self willPIPClosed:self.parentViewController];
         

@@ -5,6 +5,7 @@
 //  Created by Danilo Priore on 22/03/17.
 //  Copyright © 2017 Danilo Priore. All rights reserved.
 //
+#define AVPlayerOverlayPIPClosedNotification @"AVPlayerOverlayPIPClosed"
 
 #import "AVPlayerOverlayViewController.h"
 
