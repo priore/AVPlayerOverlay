@@ -8,7 +8,9 @@
 
 #import "AVPlayerOverlayViewController.h"
 
-@class AVPlayer;
+@import AVKit;
+@import CoreMedia;
+
 @protocol AVPlayerPIPOverlayVCDelegate;
 
 IB_DESIGNABLE
@@ -18,6 +20,9 @@ IB_DESIGNABLE
 @property (nonatomic, weak) IBOutlet UIButton *playButton;
 @property (nonatomic, weak) IBOutlet UIButton *restoreButton;
 @property (nonatomic, weak) IBOutlet UIButton *closeButton;
+@property (nonatomic, weak) IBOutlet UISlider *videoSlider;
+@property (nonatomic, weak) IBOutlet UILabel *currentTimeLabel;
+@property (nonatomic, weak) IBOutlet UILabel *durationTimeLabel;
 
 @property (nonatomic, assign) IBInspectable CGFloat animationDuration;
 
@@ -31,6 +36,8 @@ IB_DESIGNABLE
 
 - (void)showControls;
 - (void)hideControls;
+
+- (void)setCurrentTimeValue:(CMTime)time;
 
 @end
 

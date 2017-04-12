@@ -69,6 +69,7 @@ __strong static id _deallocDisabled; // used in PIP mode
         
         [_overlayVC addTarget:self action:@selector(disableDealloc) forEvents:AVPlayerOverlayEventDidPIPBecomeActive];
         [_overlayVC addTarget:self action:@selector(enableDealloc) forEvents:AVPlayerOverlayEventDidPIPDeactivation];
+        [_overlayVC addTarget:self action:@selector(didPeriodicTimeObserver:) forEvents:AVPlayerOverlayEventPeriodicTimeObserver];
     }
     
     if (_PIPStoryboardId.length > 0)
@@ -227,6 +228,14 @@ __strong static id _deallocDisabled; // used in PIP mode
 - (void)enableDealloc
 {
     _deallocDisabled = nil;
+}
+
+#pragma mark - Overlay Events
+
+- (void)didPeriodicTimeObserver:(NSValue*)value
+{
+    CMTime time = [value CMTimeValue];
+    [self.pipOverlayVC setCurrentTimeValue:time];
 }
 
 #pragma mark - Notifications

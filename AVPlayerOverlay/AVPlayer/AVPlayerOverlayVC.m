@@ -218,10 +218,10 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
                                                                                           } completion:nil];
                                                                       }
                                                                       
-                                                                      Float64 seconds = CMTimeGetSeconds(time);
-                                                                      [self sendActionsForEvent:AVPlayerOverlayEventPeriodicTimeObserver object:@(seconds)];
+                                                                      NSValue *o_time =[NSValue valueWithCMTime:time];
+                                                                      [self sendActionsForEvent:AVPlayerOverlayEventPeriodicTimeObserver object:o_time];
                                                                       
-                                                                      [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidPeriodicTimeObserverNotification object:@(seconds)];
+                                                                      [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerOverlayVCDidPeriodicTimeObserverNotification object:o_time];
                                                                       
                                                                       if ([_delegate respondsToSelector:@selector(avPlayerOverlay:periodicTimeObserver:)])
                                                                           [_delegate avPlayerOverlay:self periodicTimeObserver:time];
