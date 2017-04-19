@@ -44,6 +44,8 @@ IB_DESIGNABLE
 
 @protocol AVPlayerPIPOverlayVCDelegate <NSObject>
 
+@optional
+
 - (void)pipOverlayViewController:(UIViewController*)viewController willPIPClosed:(id)sender;
 - (void)pipOverlayViewController:(UIViewController*)viewController willPIPDeactivation:(id)sender;
 
