@@ -138,7 +138,10 @@ IB_DESIGNABLE
 - (void)airplayResignPresent;
 
 - (void)pipActivate;
+- (void)pipActivateWithCompletion:(void(^)())completion;
+
 - (void)pipDeactivate;
+- (void)pipDeactivateWithCompletion:(void(^)())completion;
 
 - (void)showMainParentBeforePIPDeactivation;
 - (void)hideMainParentBeforePIPActivation;

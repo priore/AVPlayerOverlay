@@ -1079,6 +1079,11 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
 
 - (void)pipActivate
 {
+    [self pipActivateWithCompletion:nil];
+}
+
+- (void)pipActivateWithCompletion:(void(^)())completion;
+{
     [UIView animateWithDuration:_pipAnimationDuration / 4.0 animations:^{
         self.view.alpha = 0.0;
     } completion:^(BOOL finished) {
@@ -1156,14 +1161,25 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
                              }
                              
                              [self didPIPBecomeActivationViewController:parent];
+                             
+                             if (completion)
+                                 completion();
                          }];
     }];}
 
 - (void)pipDeactivate
 {
+    [self pipDeactivateWithCompletion:nil];
+}
+
+- (void)pipDeactivateWithCompletion:(void(^)())completion;
+{
     [self animmatedPIPDeactivationWithDuration:_pipAnimationDuration animation:^(UIViewController *parent) {
         parent.view.frame = _currentFrame;
-    } completion:nil];
+    } completion:^(BOOL finished) {
+       if (completion)
+           completion();
+    }];
 }
 
 - (void)showMainParentBeforePIPDeactivation
