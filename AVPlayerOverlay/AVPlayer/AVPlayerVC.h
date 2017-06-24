@@ -5,6 +5,7 @@
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
 #define AVPlayerVCSetVideoURLNotification @"avplayervcsetvideourl"
+#define AVPlayerVCVisibilityNotification @"avplayervcvisibility"
 #define kAVPlayerVCSubtitleURL @"subtitles"
 
 #import "AVPlayerOverlayVC.h"

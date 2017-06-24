@@ -13,6 +13,8 @@
 
 @interface AVPlayerVC ()
 
+@property (nonatomic, strong) NSTimer *timerVisibility;
+
 @end
 
 @implementation AVPlayerVC
@@ -86,6 +88,22 @@ __strong static id _deallocDisabled; // used in PIP mode
         [_overlayVC addTarget:_pipOverlayVC action:@selector(showControls) forEvents:AVPlayerOverlayEventDidPIPBecomeActive];
         [_overlayVC addTarget:_pipOverlayVC action:@selector(hideControls) forEvents:AVPlayerOverlayEventWillPIPDeactivation];
     }
+    
+    // visibility notification
+    _timerVisibility = [NSTimer timerWithTimeInterval:0.5 repeats:YES block:^(NSTimer * _Nonnull timer) {
+        static BOOL visibility = NO;
+        CGRect rect = [self.view.window convertRect:self.view.frame fromView:self.view];
+        if (rect.size.width > 0 && rect.size.height > 0) {
+            if (CGRectContainsRect(self.view.window.frame, rect) && !visibility) {
+                visibility = YES;
+                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:@(YES)];
+            } else if (!CGRectContainsRect(self.view.window.frame, rect) && visibility) {
+                visibility = NO;
+                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:@(NO)];
+            }
+        }
+    }];
+    [[NSRunLoop currentRunLoop] addTimer:_timerVisibility forMode:NSRunLoopCommonModes];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -190,6 +208,8 @@ __strong static id _deallocDisabled; // used in PIP mode
     
     [_overlayVC removeFromParentViewController], _overlayVC = nil;
     [_pipOverlayVC removeFromParentViewController], _pipOverlayVC = nil;
+    
+    [_timerVisibility invalidate], _timerVisibility = nil;
     
     [self.player pause], self.player = nil;
 }
