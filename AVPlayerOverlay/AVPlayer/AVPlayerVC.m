@@ -96,10 +96,10 @@ __strong static id _deallocDisabled; // used in PIP mode
         if (rect.size.width > 0 && rect.size.height > 0) {
             if (CGRectContainsRect(self.view.window.frame, rect) && !visibility) {
                 visibility = YES;
-                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:@(YES)];
+                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(YES)}];
             } else if (!CGRectContainsRect(self.view.window.frame, rect) && visibility) {
                 visibility = NO;
-                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:@(NO)];
+                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(NO)}];
             }
         }
     }];
