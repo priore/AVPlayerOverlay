@@ -90,19 +90,7 @@ __strong static id _deallocDisabled; // used in PIP mode
     }
     
     // visibility notification
-    _timerVisibility = [NSTimer timerWithTimeInterval:0.5 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        static BOOL visibility = NO;
-        CGRect rect = [self.view.window convertRect:self.view.frame fromView:self.view];
-        if (rect.size.width > 0 && rect.size.height > 0) {
-            if (CGRectContainsRect(self.view.window.frame, rect) && !visibility) {
-                visibility = YES;
-                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(YES)}];
-            } else if (!CGRectContainsRect(self.view.window.frame, rect) && visibility) {
-                visibility = NO;
-                [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(NO)}];
-            }
-        }
-    }];
+    _timerVisibility = [NSTimer timerWithTimeInterval:0.5 target:self selector:@selector(timerVisibility:) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop] addTimer:_timerVisibility forMode:NSRunLoopCommonModes];
 }
 
@@ -276,6 +264,23 @@ __strong static id _deallocDisabled; // used in PIP mode
     self.subtitlesURL = note.userInfo[kAVPlayerVCSubtitleURL];
     
     [_overlayVC loadSubtitlesWithURL:_subtitlesURL];
+}
+
+#pragma mark - Timers
+
+- (void)timerVisibility:(id)timer
+{
+    static BOOL visibility = NO;
+    CGRect rect = [self.view.window convertRect:self.view.frame fromView:self.view];
+    if (rect.size.width > 0 && rect.size.height > 0) {
+        if (CGRectContainsRect(self.view.window.frame, rect) && !visibility) {
+            visibility = YES;
+            [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(YES)}];
+        } else if (!CGRectContainsRect(self.view.window.frame, rect) && visibility) {
+            visibility = NO;
+            [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(NO)}];
+        }
+    }
 }
 
 @end
