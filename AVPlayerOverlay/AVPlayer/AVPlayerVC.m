@@ -13,6 +13,7 @@
 
 @interface AVPlayerVC ()
 
+@property (nonatomic, assign) BOOL visibility;
 @property (nonatomic, strong) NSTimer *timerVisibility;
 
 @end
@@ -25,6 +26,7 @@ __strong static id _deallocDisabled; // used in PIP mode
 {
     if (self = [super initWithCoder:aDecoder]) {
         
+        _visibility = NO;
         _videoBackground = NO;
         _PIPStoryboardId = @"AVPlayerPIPOverlayVC";
         _overlayStoryboardId = @"AVPlayerOverlayVC";
@@ -270,14 +272,13 @@ __strong static id _deallocDisabled; // used in PIP mode
 
 - (void)timerVisibility:(id)timer
 {
-    static BOOL visibility = NO;
     CGRect rect = [self.view.window convertRect:self.view.frame fromView:self.view];
     if (rect.size.width > 0 && rect.size.height > 0) {
-        if (CGRectContainsRect(self.view.window.frame, rect) && !visibility) {
-            visibility = YES;
+        if (CGRectContainsRect(self.view.window.frame, rect) && !_visibility) {
+            _visibility = YES;
             [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(YES)}];
-        } else if (!CGRectContainsRect(self.view.window.frame, rect) && visibility) {
-            visibility = NO;
+        } else if (!CGRectContainsRect(self.view.window.frame, rect) && _visibility) {
+            _visibility = NO;
             [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(NO)}];
         }
     }
