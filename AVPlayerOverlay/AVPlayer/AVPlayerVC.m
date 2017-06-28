@@ -142,6 +142,8 @@ __strong static id _deallocDisabled; // used in PIP mode
 
         if (_videoURL != nil) {
             
+            [_overlayVC.activityIndicatorView startAnimating];
+            
             AVAsset *asset = [self.player.currentItem asset];
             if ([asset isKindOfClass:[AVURLAsset class]]) {
                 NSURL *current_url = [(AVURLAsset*)asset URL];

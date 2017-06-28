@@ -51,6 +51,7 @@ IB_DESIGNABLE
 @property (nonatomic, weak) IBOutlet UILabel *subtitlesLabel;
 @property (nonatomic, weak) IBOutlet UILabel *currentTimeLabel;
 @property (nonatomic, weak) IBOutlet UILabel *durationTimeLabel;
+@property (nonatomic, weak) IBOutlet UIActivityIndicatorView *activityIndicatorView;
 
 @property (nonatomic, weak) AVPlayer *player;
 

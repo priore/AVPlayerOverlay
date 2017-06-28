@@ -105,6 +105,8 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
     _subtitlesLabel.baselineAdjustment = UIBaselineAdjustmentAlignBaselines;
     _subtitlesButton.enabled = NO;
     
+    _activityIndicatorView.hidesWhenStopped = YES;
+    
     [self videoSliderEnabled:NO];
     [self setupAirPlay];
     
@@ -552,6 +554,8 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
         CMTime duration = [self playerItemDuration];
         _durationTimeLabel.text = CMTIME_IS_VALID(duration) ? [SubtitlePackage makeSaveName:duration] : nil;
     }
+    
+    [_activityIndicatorView stopAnimating];
     
     [self sendActionsForEvent:AVPlayerOverlayEventStatusReadyToPlay object:self];
     
