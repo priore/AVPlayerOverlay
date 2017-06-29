@@ -11,13 +11,6 @@
 @import CoreMedia;
 @import AVFoundation;
 
-@interface AVPlayerVC ()
-
-@property (nonatomic, assign) BOOL visibility;
-@property (nonatomic, strong) NSTimer *timerVisibility;
-
-@end
-
 @implementation AVPlayerVC
 
 __strong static id _deallocDisabled; // used in PIP mode
@@ -26,7 +19,6 @@ __strong static id _deallocDisabled; // used in PIP mode
 {
     if (self = [super initWithCoder:aDecoder]) {
         
-        _visibility = NO;
         _videoBackground = NO;
         _PIPStoryboardId = @"AVPlayerPIPOverlayVC";
         _overlayStoryboardId = @"AVPlayerOverlayVC";
@@ -90,10 +82,6 @@ __strong static id _deallocDisabled; // used in PIP mode
         [_overlayVC addTarget:_pipOverlayVC action:@selector(showControls) forEvents:AVPlayerOverlayEventDidPIPBecomeActive];
         [_overlayVC addTarget:_pipOverlayVC action:@selector(hideControls) forEvents:AVPlayerOverlayEventWillPIPDeactivation];
     }
-    
-    // visibility notification
-    _timerVisibility = [NSTimer timerWithTimeInterval:0.5 target:self selector:@selector(timerVisibility:) userInfo:nil repeats:YES];
-    [[NSRunLoop currentRunLoop] addTimer:_timerVisibility forMode:NSRunLoopCommonModes];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -197,11 +185,10 @@ __strong static id _deallocDisabled; // used in PIP mode
 {
     [_overlayVC.player pause];
     [_overlayVC setPlayer:nil];
+    [_overlayVC stopCheckVisibility];
     
     [_overlayVC removeFromParentViewController], _overlayVC = nil;
     [_pipOverlayVC removeFromParentViewController], _pipOverlayVC = nil;
-    
-    [_timerVisibility invalidate], _timerVisibility = nil;
     
     [self.player pause], self.player = nil;
 }
@@ -268,22 +255,6 @@ __strong static id _deallocDisabled; // used in PIP mode
     self.subtitlesURL = note.userInfo[kAVPlayerVCSubtitleURL];
     
     [_overlayVC loadSubtitlesWithURL:_subtitlesURL];
-}
-
-#pragma mark - Timers
-
-- (void)timerVisibility:(id)timer
-{
-    CGRect rect = [self.view.window convertRect:self.view.frame fromView:self.view];
-    if (rect.size.width > 0 && rect.size.height > 0) {
-        if (CGRectContainsRect(self.view.window.frame, rect) && !_visibility) {
-            _visibility = YES;
-            [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(YES)}];
-        } else if (!CGRectContainsRect(self.view.window.frame, rect) && _visibility) {
-            _visibility = NO;
-            [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(NO)}];
-        }
-    }
 }
 
 @end

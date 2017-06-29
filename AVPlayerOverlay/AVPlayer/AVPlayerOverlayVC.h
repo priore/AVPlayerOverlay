@@ -150,6 +150,8 @@ IB_DESIGNABLE
 - (void)forceDeviceOrientation:(UIInterfaceOrientation)orientation;
 - (void)deviceOrientationDidChange:(NSNotification *)notification;
 
+- (void)stopCheckVisibility;
+
 @end
 
 @protocol  AVPlayerOverlayVCDelegate <NSObject>

@@ -4,6 +4,7 @@
 //  Created by Danilo Priore on 28/04/16.
 //  Copyright © 2016 Prioregroup.com. All rights reserved.
 //
+#import "AVPlayerVC.h"
 #import "AVPlayerOverlayVC.h"
 #import "AVPlayerPIPOverlayVC.h"
 #import "SubtitlePackage.h"
@@ -28,10 +29,12 @@
 @property (nonatomic, strong) UIViewController *mainParent;
 
 @property (nonatomic, strong) id timeObserver;
+@property (nonatomic, strong) id timerVisibility;
 
 @property (nonatomic, assign) BOOL isPreloaded;
 @property (nonatomic, assign) BOOL isVideoSliderMoving;
 @property (nonatomic, assign) BOOL isAirPlayRoutingVisible;
+@property (nonatomic, assign) BOOL visibility;
 
 @property (nonatomic, assign) BOOL hiddenStatusBar;
 @property (nonatomic, assign) BOOL hiddenNavBar;
@@ -56,6 +59,7 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
         _pipPadding = 10.0;
         
         _isPIP = NO;
+        _visibility = NO;
         _isPreloaded = NO;
         _isFullscreen = NO;
         _isVideoSliderMoving = NO;
@@ -142,6 +146,9 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
     [self.view layoutIfNeeded];
     [self autoHidePlayerBar];
     
+    // start check visiblity
+    _timerVisibility = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(checkVisibility) userInfo:nil repeats:YES];
+    [[NSRunLoop currentRunLoop] addTimer:_timerVisibility forMode:NSRunLoopCommonModes];
 }
 
 - (void)dealloc
@@ -149,12 +156,13 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
     if (_timeObserver)
         [_player removeTimeObserver:_timeObserver];
     _timeObserver = nil;
-
+    
     @try {
         [_player.currentItem removeObserver:self forKeyPath:@"status"];
     } @catch (NSException *exception) { }
     
     [self deallocAirplay];
+    [self stopCheckVisibility];
 
     _volume = nil;
     _player = nil;
@@ -1240,5 +1248,25 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
     }];
 }
 
+#pragma mark - Visibility
+
+- (void)checkVisibility
+{
+    CGRect rect = [self.view.window convertRect:self.view.frame fromView:self.view];
+    if (rect.size.width > 0 && rect.size.height > 0) {
+        if (CGRectContainsRect(self.view.window.frame, rect) && !_visibility) {
+            _visibility = YES;
+            [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(YES)}];
+        } else if (!CGRectContainsRect(self.view.window.frame, rect) && _visibility) {
+            _visibility = NO;
+            [[NSNotificationCenter defaultCenter] postNotificationName:AVPlayerVCVisibilityNotification object:self userInfo:@{kAVPlayerVCVisibilityState: @(NO)}];
+        }
+    }
+}
+
+- (void)stopCheckVisibility
+{
+    [_timerVisibility invalidate], _timerVisibility = nil;
+}
 
 @end
