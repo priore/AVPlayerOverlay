@@ -25,8 +25,9 @@
 
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) MPVolumeView *volume;
-@property (nonatomic, strong) UIView *containerView;
-@property (nonatomic, strong) UIViewController *mainParent;
+
+@property (nonatomic, weak) UIView *containerView;
+@property (nonatomic, weak) UIViewController *mainParent;
 
 @property (nonatomic, strong) id timeObserver;
 @property (nonatomic, strong) id timerVisibility;
