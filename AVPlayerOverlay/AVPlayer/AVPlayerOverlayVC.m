@@ -892,6 +892,8 @@ static void *PlayViewControllerCurrentItemObservationContext = &PlayViewControll
         UIViewController *parent = self.parentViewController; // AVPlayerViewController
         if (parent) {
             
+            [parent.view setDraggable:NO];
+            
             [self willPIPDeactivationViewController:parent];
             [self showMainParentBeforePIPDeactivation];
             
