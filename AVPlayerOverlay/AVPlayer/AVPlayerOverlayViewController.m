@@ -10,7 +10,7 @@
 
 @interface AVPlayerOverlayViewController()
 
-@property (nonatomic, strong) NSMutableArray *registeredActions;
+@property (nonatomic, strong) NSMutableArray<AVPlayerOverlayAction*> *registeredActions;
 
 @end
 
@@ -36,12 +36,23 @@
 {
     if (target && action)
     {
-        AVPlayerOverlayAction *act = [[AVPlayerOverlayAction alloc] init];
-        act.target = target;
-        act.action = action;
-        act.event = event;
+        __block BOOL exist = NO;
+        [_registeredActions enumerateObjectsUsingBlock:^(AVPlayerOverlayAction * _Nonnull act, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (act.target == target && act.action == action && act.event == event) {
+                exist = YES;
+                *stop = YES;
+            }
+        }];
         
-        [_registeredActions addObject:act];
+        if (!exist) {
+            
+            AVPlayerOverlayAction *act = [[AVPlayerOverlayAction alloc] init];
+            act.target = target;
+            act.action = action;
+            act.event = event;
+            
+            [_registeredActions addObject:act];
+        }
     }
 }
 
