@@ -88,6 +88,9 @@ __strong static id _deallocDisabled; // used in PIP mode
 {
     [super viewDidAppear:animated];
     
+    [self.view bringSubviewToFront:_overlayVC.view];
+    [self.view bringSubviewToFront:_pipOverlayVC.view];
+    
     [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
     [self becomeFirstResponder];
     
