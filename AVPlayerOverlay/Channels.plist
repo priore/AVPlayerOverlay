@@ -6,35 +6,35 @@
 	<array>
 		<dict>
 			<key>ChannelName</key>
-			<string>NASA</string>
+			<string>China</string>
 			<key>Icon</key>
-			<string>nasa.png</string>
+			<string>ciack.png</string>
 			<key>URL</key>
-			<string>http://nasatv-lh.akamaihd.net/i/NASA_101@319270/index_1000_av-p.m3u8?sd=10&amp;rebase=on</string>
+			<string>http://a1.phobos.apple.com/us/r1000/000/Features/atv/AutumnResources/videos/comp_C007_C004_0824AJ_001_v01_6M_HB_tag0.mov</string>
 		</dict>
 		<dict>
 			<key>ChannelName</key>
-			<string>TWIT Tech News</string>
+			<string>Liwa</string>
 			<key>Icon</key>
-			<string>twit.png</string>
+			<string>ciack.png</string>
 			<key>URL</key>
-			<string>http://iphone-streaming.ustream.tv/uhls/1524/streams/live/iphone/playlist.m3u8</string>
+			<string>http://a1.phobos.apple.com/us/r1000/000/Features/atv/AutumnResources/videos/comp_LW_L001_C006_t9_6M_tag0.mov</string>
 		</dict>
 		<dict>
 			<key>ChannelName</key>
-			<string>Eurosport</string>
+			<string>Greenland</string>
 			<key>Icon</key>
-			<string>eurosport.png</string>
+			<string>ciack.png</string>
 			<key>URL</key>
-			<string>http://esioslive6-i.akamaihd.net/hls/live/202874/AL_P_ESP1_INTER_ENG/playlist_1000.m3u8</string>
+			<string>http://a1.phobos.apple.com/us/r1000/000/Features/atv/AutumnResources/videos/plate_G002_C002_BG_t9_6M_HB_tag0.mov</string>
 		</dict>
 		<dict>
 			<key>ChannelName</key>
-			<string>Smile of a Child</string>
+			<string>Greenland</string>
 			<key>Icon</key>
-			<string>smile.jpg</string>
+			<string>ciack.png</string>
 			<key>URL</key>
-			<string>http://acaooyalahd2-lh.akamaihd.net/i/TBN04_delivery@186242/master.m3u8</string>
+			<string>http://a1.phobos.apple.com/us/r1000/000/Features/atv/AutumnResources/videos/comp_GL_G004_C010_v03_6Mbps.mov</string>
 		</dict>
 	</array>
 </dict>
