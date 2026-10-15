@@ -2,8 +2,8 @@
 //  AVPlayerPIPOverlayVC.m
 //  AVPlayerOverlay
 //
-//  Created by Danilo Priore on 22/03/17.
-//  Copyright © 2017 Danilo Priore. All rights reserved.
+//  Created by Priore on 22/03/17.
+//  Copyright © 2017 Priore. All rights reserved.
 //
 
 #import "AVPlayerPIPOverlayVC.h"

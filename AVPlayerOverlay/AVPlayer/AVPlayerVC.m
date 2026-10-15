@@ -1,8 +1,8 @@
 //
 //  AVPlayerVC.m
 //
-//  Created by Danilo Priore on 28/04/16.
-//  Copyright © 2016 Prioregroup.com. All rights reserved.
+//  Created by Priore on 28/04/16.
+//  Copyright © 2016 Priore. All rights reserved.
 //
 #define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 

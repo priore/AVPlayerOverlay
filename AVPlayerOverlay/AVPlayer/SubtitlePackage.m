@@ -3,7 +3,7 @@
 //  APP4
 //
 //  Created by user on 12-11-9.
-//  Modified by Danilo Priore on 3-21-17.
+//  Modified by Priore on 3-21-17.
 //  Copyright (c) 2012年 FreeBox. All rights reserved.
 //
 

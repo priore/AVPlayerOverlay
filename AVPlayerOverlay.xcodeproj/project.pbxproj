@@ -185,7 +185,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0820;
-				ORGANIZATIONNAME = "Danilo Priore";
+				ORGANIZATIONNAME = "Priore";
 				TargetAttributes = {
 					9F16AFEA1CD3E3980082CC15 = {
 						CreatedOnToolsVersion = 7.3;
@@ -409,7 +409,7 @@
 				DEVELOPMENT_TEAM = JQRB98RUML;
 				INFOPLIST_FILE = AVPlayerOverlay/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.prioregroup.AVPlayerOverlay;
+				PRODUCT_BUNDLE_IDENTIFIER = com.priore.AVPlayerOverlay;
 				PRODUCT_NAME = AVPlayerOverlay;
 			};
 			name = Debug;
@@ -422,7 +422,7 @@
 				DEVELOPMENT_TEAM = JQRB98RUML;
 				INFOPLIST_FILE = AVPlayerOverlay/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.prioregroup.AVPlayerOverlay;
+				PRODUCT_BUNDLE_IDENTIFIER = com.priore.AVPlayerOverlay;
 				PRODUCT_NAME = AVPlayerOverlay;
 			};
 			name = Release;
